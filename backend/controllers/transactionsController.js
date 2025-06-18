@@ -31,59 +31,48 @@ module.exports = {
 };
 
 const getTransactions = async (req, res) => {
-    const { title, amount, type, date, department } = req.body
-    const userId = req.user.id
-
-    // Validação básica
-    if (!title || !amount || !type || !date) {
-      return res.status(400).json({ error: 'Campos obrigatórios: title, amount, type e date' })
-    }
-
-    // Nova validação de departamento
-    const isValid = await isValidDepartment(department, userId)
-    if (!isValid) {
-      return res.status(400).json({ error: 'Departamento inválido' })
-    }
+  const userId = req.user.id;
 
   try {
-    const userId = req.user.id
-    const { month, year, type, department } = req.query
+    // Pegando filtros opcionais
+    const { month, year, type, department } = req.query;
 
-    let query = `SELECT * FROM transactions WHERE user_id = $1`
-    let params = [userId]
-    let paramIndex = 2
+    let query = `SELECT * FROM transactions WHERE user_id = $1`;
+    let params = [userId];
+    let paramIndex = 2;
 
     if (month) {
-      query += ` AND EXTRACT(MONTH FROM date) = $${paramIndex}`
-      params.push(month)
-      paramIndex++
+      query += ` AND EXTRACT(MONTH FROM date) = $${paramIndex}`;
+      params.push(month);
+      paramIndex++;
     }
 
     if (year) {
-      query += ` AND EXTRACT(YEAR FROM date) = $${paramIndex}`
-      params.push(year)
-      paramIndex++
+      query += ` AND EXTRACT(YEAR FROM date) = $${paramIndex}`;
+      params.push(year);
+      paramIndex++;
     }
 
     if (type) {
-      query += ` AND type = $${paramIndex}`
-      params.push(type)
-      paramIndex++
+      query += ` AND type = $${paramIndex}`;
+      params.push(type);
+      paramIndex++;
     }
 
     if (department) {
-      query += ` AND department = $${paramIndex}`
-      params.push(department)
+      query += ` AND department = $${paramIndex}`;
+      params.push(department);
     }
 
-    const { rows } = await pool.query(query, params)
-    res.json(rows)
+    const { rows } = await pool.query(query, params);
+    res.json(rows);
 
   } catch (error) {
-    console.error('Erro ao buscar transações:', error)
-    res.status(500).json({ error: 'Erro interno ao buscar transações' })
+    console.error('Erro ao buscar transações:', error);
+    res.status(500).json({ error: 'Erro interno ao buscar transações' });
   }
 }
+
 
 
 module.exports = {

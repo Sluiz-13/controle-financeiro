@@ -11,11 +11,14 @@ const protectedRoutes = require('./routes/protectedRoutes');
 const transactionsRoutes = require('./routes/transactionsRoutes');
 const departmentsRoutes = require('./routes/departmentsRoutes')
 
+app.use(cors({
+  origin: 'http://localhost:5173'
+}))
 app.use('/api', transactionsRoutes);
 app.use('/api', protectedRoutes); 
 app.use('/api', departmentsRoutes)
-app.use(cors());
 app.use(express.json());
+
 
 // Rotas
 app.use('/api/auth', authRoutes);
