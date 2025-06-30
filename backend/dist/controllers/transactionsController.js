@@ -21,17 +21,33 @@ const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
     const { title, amount, type, date, department } = req.body;
     const userId = req.user.id;
     console.log("Usuário autenticado:", req.user);
+    console.log("Dados recebidos no corpo da requisição:", req.body);
     if (!title || !amount || !type || !date) {
         res.status(400).json({ error: "Campos obrigatorios: title, amount, type e date" });
         return;
     }
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount)) {
+        res.status(400).json({ error: "O valor da transação (amount) deve ser um número válido." });
+        return;
+    }
     try {
+        // Se um departamento foi informado, verifica se ele existe. Se não, cria um novo.
+        if (department) {
+            const departmentExists = yield isValidDepartment(department, userId);
+            if (!departmentExists) {
+                // O departamento não existe, então vamos criá-lo
+                const createDeptQuery = 'INSERT INTO departments (name, user_id) VALUES ($1, $2)';
+                yield db_1.default.query(createDeptQuery, [department, userId]);
+            }
+        }
         const query = `
     INSERT INTO transactions (title, amount, type, date, department, user_id)
     VALUES ($1, $2, $3, $4, $5, $6)
-    RETURNING*;
+    RETURNING *;
     `;
-        const values = [title, amount, type, date, department || null, userId];
+        const values = [title, parsedAmount, type, date, department || null, userId];
+        console.log("Valores sendo inseridos no banco de dados:", values);
         const result = yield db_1.default.query(query, values);
         res.status(201).json(result.rows[0]);
     }
@@ -81,10 +97,6 @@ const getTransactions = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.getTransactions = getTransactions;
-module.exports = {
-    createTransaction,
-    getTransactions
-};
 const getTransactionSummary = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user) {
         res.status(401).json({ error: 'Usuário não autenticado.' });

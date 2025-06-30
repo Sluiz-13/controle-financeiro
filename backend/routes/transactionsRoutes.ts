@@ -1,40 +1,51 @@
 import express from 'express';
 const router = express.Router();
-import * as transactionsController from '../controllers/transactionsController';
+import { 
+  createTransaction, 
+  getTransactions, 
+  getTransactionSummary, 
+  updateTransaction, 
+  deleteTransaction, 
+  getTransactionsByDepartment, 
+  getMonthlySummary, 
+  getByDepartment, 
+  getMonthlyResume, 
+  getSummaryByDepartment, 
+  getFinancialSummary 
+} from '../controllers/transactionsController';
 
 import verifyToken from '../middleware/verifyToken';
 import asyncHandler from '../utils/asyncHandler';
 
 // Criar transação
-// Criar transação
-router.post('/transactions', verifyToken, asyncHandler(transactionsController.createTransaction));
+router.post('/transactions', verifyToken, asyncHandler(createTransaction)); 
 
 // Listar transações do usuário
-router.get('/transactions', verifyToken, asyncHandler(transactionsController.getTransactions));
+router.get('/transactions', verifyToken, asyncHandler(getTransactions));
 
 // Resumo financeiro do usuário
-router.get('/transactions/summary', verifyToken, asyncHandler(transactionsController.getTransactionSummary));
+router.get('/transactions/summary', verifyToken, asyncHandler(getTransactionSummary));
 
 // Atualizar transação
-router.put('/transactions/:id', verifyToken, asyncHandler(transactionsController.updateTransaction));
+router.put('/transactions/:id', verifyToken, asyncHandler(updateTransaction));
 
 // Excluir transação
-router.delete('/transactions/:id', verifyToken, asyncHandler(transactionsController.deleteTransaction));
+router.delete('/transactions/:id', verifyToken, asyncHandler(deleteTransaction));
 
 // Mostrar transação por departamento
-router.get('/transactions/department/:department', verifyToken, asyncHandler(transactionsController.getTransactionsByDepartment));
+router.get('/transactions/department/:department', verifyToken, asyncHandler(getTransactionsByDepartment));
 
 //Mostrar os graficos 
-router.get('/transactions/graph/monthly', verifyToken, asyncHandler(transactionsController.getMonthlySummary))
+router.get('/transactions/graph/monthly', verifyToken, asyncHandler(getMonthlySummary))
 
 // Mostrar por departamento
-router.get('/transactions/graph/department', verifyToken, asyncHandler(transactionsController.getByDepartment))
+router.get('/transactions/graph/department', verifyToken, asyncHandler(getByDepartment))
 
-router.get('/transactions/graph/resumo', verifyToken, asyncHandler(transactionsController.getMonthlyResume))
+router.get('/transactions/graph/resumo', verifyToken, asyncHandler(getMonthlyResume))
 
-router.get('/transactions/summary-by-department', verifyToken, asyncHandler(transactionsController.getSummaryByDepartment))
+router.get('/transactions/summary-by-department', verifyToken, asyncHandler(getSummaryByDepartment))
 
-router.get('/transactions/financial-summary', verifyToken, asyncHandler(transactionsController.getFinancialSummary))
+router.get('/transactions/financial-summary', verifyToken, asyncHandler(getFinancialSummary))
 
 
 export default router;
