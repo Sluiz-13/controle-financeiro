@@ -1,16 +1,18 @@
-const pool = require('../config/db');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+import pool from '../config/db';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 
-exports.register = async (req, res) => {
+import { Request, Response } from 'express';
+
+export const register = async (req: Request, res: Response): Promise<void> => {
   const { name, email, password } = req.body;
 
   try {
     // Verifica se o email já existe
     const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (existingUser.rows.length > 0) {
-      return res.status(400).json({ error: 'Email já registrado' });
+      res.status(400).json({ error: 'Email já registrado' });
     }
 
     // Criptografa a senha
@@ -22,7 +24,11 @@ exports.register = async (req, res) => {
       [name, email, hashedPassword]
     );
 
-    const token = jwt.sign({ id: newUser.rows[0].id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET não está definido');
+    }
+    const token = jwt.sign({ id: newUser.rows[0].id }, jwtSecret, { expiresIn: '1d' });
 
     res.status(201).json({
       message: 'Usuário registrado com sucesso',
@@ -39,7 +45,7 @@ exports.register = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
+export const login = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
 
   try {
@@ -47,7 +53,7 @@ exports.login = async (req, res) => {
     const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
     if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
+      res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
     const user = userResult.rows[0];
@@ -55,11 +61,15 @@ exports.login = async (req, res) => {
     // Verifica a senha
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      return res.status(401).json({ error: 'Senha incorreta' });
+      res.status(401).json({ error: 'Senha incorreta' });
     }
 
     // Gera o token JWT
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET não está definido');
+    }
+    const token = jwt.sign({ id: user.id }, jwtSecret, { expiresIn: '1d' });
 
     res.status(200).json({
       message: 'Login realizado com sucesso',

@@ -1,11 +1,17 @@
-const pool = require('../config/db');
+import pool from '../config/db';
+import { Request, Response } from 'express';
 
-const createTransaction = async (req, res) => {
+const createTransaction = async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Usuário não autenticado.' });
+  }
   const {title, amount, type, date, department } = req.body;
   const userId = req.user.id;
 
+  console.log("Usuário autenticado:", req.user);
   if (!title || !amount || !type || !date) {
-    return res.status(400).json({error:"Campos obrigatorios: title, amount, type e date"});
+    res.status(400).json({error:"Campos obrigatorios: title, amount, type e date"});
+    return;
   }
   try{
     const query = `
@@ -26,11 +32,13 @@ const createTransaction = async (req, res) => {
 };
 
 
-module.exports = {
-  createTransaction
-};
 
-const getTransactions = async (req, res) => {
+
+const getTransactions = async (req: Request, res: Response) => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Usuário não autenticado.' });
+    return;
+  }
   const userId = req.user.id;
 
   try {
@@ -42,26 +50,26 @@ const getTransactions = async (req, res) => {
     let paramIndex = 2;
 
     if (month) {
-      query += ` AND EXTRACT(MONTH FROM date) = $${paramIndex}`;
-      params.push(month);
+      query += ` AND EXTRACT(MONTH FROM date) = ${paramIndex}`;
+      params.push(month as string);
       paramIndex++;
     }
 
     if (year) {
-      query += ` AND EXTRACT(YEAR FROM date) = $${paramIndex}`;
-      params.push(year);
+      query += ` AND EXTRACT(YEAR FROM date) = ${paramIndex}`;
+      params.push(year as string);
       paramIndex++;
     }
 
     if (type) {
-      query += ` AND type = $${paramIndex}`;
-      params.push(type);
+      query += ` AND type = ${paramIndex}`;
+      params.push(type as string);
       paramIndex++;
     }
 
     if (department) {
-      query += ` AND department = $${paramIndex}`;
-      params.push(department);
+      query += ` AND department = ${paramIndex}`;
+      params.push(department as string);
     }
 
     const { rows } = await pool.query(query, params);
@@ -80,7 +88,11 @@ module.exports = {
   getTransactions
 };
 
-const getTransactionSummary = async (req, res) => {
+const getTransactionSummary = async (req: Request, res: Response) => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Usuário não autenticado.' });
+    return;
+  }
   const userId = req.user.id;
 
   try {
@@ -105,7 +117,11 @@ const getTransactionSummary = async (req, res) => {
   }
 };
 
-const updateTransaction = async (req, res) => {
+const updateTransaction = async (req: Request, res: Response) => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Usuário não autenticado.' });
+    return;
+  }
   const { id } = req.params;
   const userId = req.user.id;
   const { title, amount, type, department, expected } = req.body;
@@ -130,7 +146,11 @@ const updateTransaction = async (req, res) => {
   }
 };
 
-const deleteTransaction = async (req, res) => {
+const deleteTransaction = async (req: Request, res: Response) => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Usuário não autenticado.' });
+    return;
+  }
   const { id } = req.params;
   const userId = req.user.id;
 
@@ -151,7 +171,12 @@ const deleteTransaction = async (req, res) => {
   }
 };
 
-const getTransactionsByDepartment = async (req, res) => {
+const getTransactionsByDepartment = async (req: Request, res: Response) => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Usuário não autenticado.' });
+    return;
+    return;
+  }
   const { department } = req.params;
   const userId = req.user.id;
 
@@ -170,7 +195,15 @@ const getTransactionsByDepartment = async (req, res) => {
   }
 };
 
-const getMonthlySummary = async (req, res) => {
+interface MonthlySummaryResult {
+  [key: number]: { entrada: number; saida: number };
+}
+
+const getMonthlySummary = async (req: Request, res: Response) => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Usuário não autenticado.' });
+    return;
+  }
   try {
     const userId = req.user.id
 
@@ -187,15 +220,15 @@ const getMonthlySummary = async (req, res) => {
     const { rows } = await pool.query(query, [userId])
 
     // Organizar em formato mais fácil para o front
-    const result = {}
+    const result: MonthlySummaryResult = {}
 
     for (let i = 1; i <= 12; i++) {
       result[i] = { entrada: 0, saida: 0 }
     }
 
-    rows.forEach(row => {
-      const m = row.month
-      result[m][row.type] = parseFloat(row.total)
+    rows.forEach((row: { month: number; type: 'entrada' | 'saida'; total: string }) => {
+      const m = row.month;
+      result[m][row.type] = parseFloat(row.total);
     })
 
     res.json(result)
@@ -206,13 +239,18 @@ const getMonthlySummary = async (req, res) => {
   }
 }
 
-const getByDepartment = async (req, res) => {
+const getByDepartment = async (req: Request, res: Response) => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Usuário não autenticado.' });
+    return;
+  }
   try {
     const userId = req.user.id
     const { month, year } = req.query
 
     if (!month || !year) {
-      return res.status(400).json({ error: 'Informe mês e ano' })
+      res.status(400).json({ error: 'Informe mês e ano' });
+      return;
     }
 
     const query = `
@@ -226,7 +264,7 @@ const getByDepartment = async (req, res) => {
       ORDER BY total DESC
     `
 
-    const { rows } = await pool.query(query, [userId, month, year])
+    const { rows } = await pool.query(query, [userId, month as string, year as string])
     res.json(rows)
 
   } catch (error) {
@@ -235,7 +273,16 @@ const getByDepartment = async (req, res) => {
   }
 }
 
-const getMonthlyResume = async (req, res) => {
+interface MonthlyResumeResult {
+  entrada: number;
+  saida: number;
+}
+
+const getMonthlyResume = async (req: Request, res: Response) => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Usuário não autenticado.' });
+    return;
+  }
   try {
     const userId = req.user.id
     const { month, year } = req.query
@@ -244,8 +291,8 @@ const getMonthlyResume = async (req, res) => {
     const currentMonth = now.getMonth() + 1
     const currentYear = now.getFullYear()
 
-    const m = month || currentMonth
-    const y = year || currentYear
+    const m = (month as string) || currentMonth
+    const y = (year as string) || currentYear
 
     const query = `
       SELECT type, SUM(amount) AS total
@@ -258,9 +305,9 @@ const getMonthlyResume = async (req, res) => {
 
     const { rows } = await pool.query(query, [userId, m, y])
 
-    const result = { entrada: 0, saida: 0 }
+    const result: MonthlyResumeResult = { entrada: 0, saida: 0 }
 
-    rows.forEach(row => {
+    rows.forEach((row: { type: 'entrada' | 'saida'; total: string }) => {
       result[row.type] = parseFloat(row.total)
     })
 
@@ -272,7 +319,7 @@ const getMonthlyResume = async (req, res) => {
   }
 }
 
-const isValidDepartment = async (departmentName, userId) => {
+const isValidDepartment = async (departmentName: string, userId: string) => {
   const query = `
     SELECT 1 FROM departments
     WHERE name = $1 AND (user_id = $2 OR is_default = true)
@@ -282,7 +329,11 @@ const isValidDepartment = async (departmentName, userId) => {
   return rows.length > 0
 }
 
-const getSummaryByDepartment = async (req, res) => {
+const getSummaryByDepartment = async (req: Request, res: Response) => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Usuário não autenticado.' });
+    return;
+  }
   const userId = req.user.id
 
   try {
@@ -301,7 +352,11 @@ const getSummaryByDepartment = async (req, res) => {
   }
 }
 
-const getFinancialSummary = async (req, res) => {
+const getFinancialSummary = async (req: Request, res: Response) => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Usuário não autenticado.' });
+    return;
+  }
   const userId = req.user.id
 
   try {
@@ -329,7 +384,7 @@ const getFinancialSummary = async (req, res) => {
 }
 
 
-module.exports = {
+export {
   createTransaction,
   getTransactions,
   getTransactionSummary,

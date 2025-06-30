@@ -1,7 +1,13 @@
-const pool = require('../config/db')
+import pool from '../config/db';
+
+import { Request, Response } from 'express';
 
 // Listar departamentos do usuário
-const getDepartments = async (req, res) => {
+const getDepartments = async (req: Request, res: Response): Promise<void> => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Usuário não autenticado.' });
+    return;
+  }
   const userId = req.user.id
   try {
     const query = `SELECT * FROM departments WHERE user_id = $1 AND is_active = TRUE ORDER BY name`
@@ -14,7 +20,11 @@ const getDepartments = async (req, res) => {
 }
 
 // Criar novo departamento
-const createDepartment = async (req, res) => {
+const createDepartment = async (req: Request, res: Response): Promise<void> => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Usuário não autenticado.' });
+    return;
+  }
   const userId = req.user.id
   const { name } = req.body
   try {
@@ -27,7 +37,4 @@ const createDepartment = async (req, res) => {
   }
 }
 
-module.exports = {
-  getDepartments,
-  createDepartment
-}
+export { getDepartments, createDepartment };

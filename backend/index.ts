@@ -1,15 +1,21 @@
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const authRoutes = require('./routes/authRoutes');
+import helmet from 'helmet';
+
+import authRoutes from './routes/authRoutes';
 
 const app = express();
 app.use(express.json());
+app.use(helmet());
+
 const PORT = process.env.PORT || 5000;
-const protectedRoutes = require('./routes/protectedRoutes');
-const transactionsRoutes = require('./routes/transactionsRoutes');
-const departmentsRoutes = require('./routes/departmentsRoutes')
+
+import protectedRoutes from './routes/protectedRoutes';
+import transactionsRoutes from './routes/transactionsRoutes';
+import departmentsRoutes from './routes/departmentsRoutes';
 
 app.use(cors({
   origin: 'http://localhost:5173'
@@ -17,7 +23,6 @@ app.use(cors({
 app.use('/api', transactionsRoutes);
 app.use('/api', protectedRoutes); 
 app.use('/api', departmentsRoutes)
-app.use(express.json());
 
 
 // Rotas
