@@ -13,7 +13,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (existingUser.rows.length > 0) {
       res.status(400).json({ error: 'Email já registrado' });
-      return;
     }
 
     // Criptografa a senha
