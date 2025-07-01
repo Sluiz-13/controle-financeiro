@@ -8,9 +8,7 @@ import authRoutes from './routes/authRoutes';
 const app = express();
 app.use(express.json());
 app.use(helmet());
-const PORT = process.env.PORT || 5000;
 
-// 👉 CORS deve vir antes de tudo que use rotas
 const allowedOrigins = [
   'http://localhost:5173',
   'https://controlefinanceiroweb.netlify.app',
@@ -33,6 +31,8 @@ app.use(
 );
 
 app.options('*', cors()); // 👈 permite preflight OPTIONS
+
+const PORT = process.env.PORT || 5000;
 
 import protectedRoutes from './routes/protectedRoutes';
 import transactionsRoutes from './routes/transactionsRoutes';
