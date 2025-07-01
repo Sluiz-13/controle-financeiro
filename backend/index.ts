@@ -18,8 +18,11 @@ import transactionsRoutes from './routes/transactionsRoutes';
 import departmentsRoutes from './routes/departmentsRoutes';
 
 app.use(cors({
-  origin: 'http://localhost:5173'
-}))
+  origin: '*', // Permite todas as origens (para depuração, restrinja depois!)
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Permite todos os métodos comuns
+  allowedHeaders: ['Content-Type', 'Authorization'], // Permite cabeçalhos comuns
+  credentials: true // Permite o envio de cookies e cabeçalhos de autorização
+}));
 app.use('/api', transactionsRoutes);
 app.use('/api', protectedRoutes); 
 app.use('/api', departmentsRoutes)
