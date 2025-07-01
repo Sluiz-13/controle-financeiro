@@ -11,7 +11,8 @@ const PORT = process.env.PORT || 5000;
 // 👉 CORS deve vir antes de tudo que use rotas
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://controlefinanceiroweb.netlify.app"
+  "https://controlefinanceiroweb.netlify.app",
+  "https://6863c93---controlefinanceiroweb.netlify.app"
 ];
 
 app.use(cors({
