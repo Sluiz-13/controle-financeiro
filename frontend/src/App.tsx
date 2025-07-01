@@ -20,7 +20,14 @@ interface PrivateRouteProps {
  
 // Componente para proteger rotas privadas
 const PrivateRoute = ({ children }: PrivateRouteProps) => {
-  const { token, isLoading } = useContext(AuthContext);
+  const auth = useContext(AuthContext);
+
+  if (!auth) {
+    // O contexto ainda não está disponível, pode ser um estado de carregamento inicial
+    return <div>Carregando...</div>; 
+  }
+
+  const { token, isLoading } = auth;
 
   if (isLoading) {
     return <div>Carregando...</div>; // Ou um spinner de carregamento

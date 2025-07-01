@@ -1,22 +1,41 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, ReactNode } from "react";
 
-export const AuthContext = createContext();
+// --- Definições de Tipos ---
+interface AuthContextType {
+  token: string | null;
+  isLoading: boolean;
+  login: (newToken: string) => void;
+  logout: () => void;
+}
 
-export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // Novo estado de carregamento
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+// --- Criação do Contexto ---
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// --- Componente do Provedor ---
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Carrega o token salvo no localStorage ao iniciar
   useEffect(() => {
-    const savedToken = localStorage.getItem("token");
-    if (savedToken) {
-      setToken(savedToken);
+    try {
+      const savedToken = localStorage.getItem("token");
+      if (savedToken) {
+        setToken(savedToken);
+      }
+    } catch (error) {
+      console.error("Failed to access localStorage:", error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false); // Define como falso após tentar carregar o token
   }, []);
 
   // Salva o token ao fazer login
-  const login = (newToken) => {
+  const login = (newToken: string) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);
   };
@@ -27,12 +46,17 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
   };
 
+  // --- Valor do Contexto ---
+  const contextValue: AuthContextType = {
+    token,
+    login,
+    logout,
+    isLoading,
+  };
+
   return (
-    <AuthContext.Provider value={{ token, login, logout, isLoading }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
 };
-
-
-
