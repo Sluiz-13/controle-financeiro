@@ -18,7 +18,7 @@ import transactionsRoutes from './routes/transactionsRoutes';
 import departmentsRoutes from './routes/departmentsRoutes';
 
 app.use(cors({
-  origin: '686328e6e87814544a69451a--controlefinanceiroweb.netlify.app', // Permite todas as origens (para depuração, restrinja depois!)
+  origin: "https://controlefinanceiroweb.netlify.app", // Permite todas as origens (para depuração, restrinja depois!)
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Permite todos os métodos comuns
   allowedHeaders: ['Content-Type', 'Authorization'], // Permite cabeçalhos comuns
   credentials: true // Permite o envio de cookies e cabeçalhos de autorização
