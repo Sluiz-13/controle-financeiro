@@ -1,5 +1,6 @@
+// index.ts
 import express from 'express';
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 
@@ -8,7 +9,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ Lista de origens permitidas (dev + prod + builds temporários do Netlify)
+// 🌐 Origens permitidas (dev + produção + pré-visualizações Netlify)
 const allowedOrigins = [
   "http://localhost:5173",
   "https://controlefinanceiroweb.netlify.app",
@@ -16,9 +17,9 @@ const allowedOrigins = [
   "https://6863c93---controlefinanceiroweb.netlify.app"
 ];
 
-// 🎯 Função para verificar origem permitida
-const corsOptions = {
-  origin: (origin, callback) => {
+// 🔐 Configuração CORS com tipos explícitos para TypeScript
+const corsOptions: CorsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -30,24 +31,24 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization']
 };
 
-// 🧱 Middlewares
-app.use(cors(corsOptions)); // aplica CORS personalizado
-app.options("*", cors(corsOptions)); // aplica CORS também no preflight OPTIONS
+// 🧱 Middlewares principais
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json());
 app.use(helmet());
 
-// 🚀 Suas rotas
-import authRoutes from './routes/authRoutes.js';
-import protectedRoutes from './routes/protectedRoutes.js';
-import transactionsRoutes from './routes/transactionsRoutes.js';
-import departmentsRoutes from './routes/departmentsRoutes.js';
+// 📦 Rotas importadas
+import authRoutes from './routes/authRoutes';
+import protectedRoutes from './routes/protectedRoutes';
+import transactionsRoutes from './routes/transactionsRoutes';
+import departmentsRoutes from './routes/departmentsRoutes';
 
 app.use('/api', transactionsRoutes);
 app.use('/api', protectedRoutes);
 app.use('/api', departmentsRoutes);
 app.use('/api/auth', authRoutes);
 
-// 🟢 Inicialização do servidor
+// 🚀 Inicializa servidor
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
