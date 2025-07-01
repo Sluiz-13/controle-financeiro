@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import api from "../lib/api";
 import "./Register.css";
 
 export default function Register() {
@@ -14,6 +15,8 @@ export default function Register() {
     e.preventDefault();
     setError("");
     setSuccess("");
+    console.log("Enviando cadastro:", { name, email, password });
+
     try {
       await api.post("/auth/register", { name, email, password });
       setSuccess("Cadastro realizado com sucesso! Redirecionando para o login...");
