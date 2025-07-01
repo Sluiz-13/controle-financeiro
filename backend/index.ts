@@ -1,11 +1,18 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-dotenv.config();
 import helmet from 'helmet';
+
+dotenv.config();
+
 import authRoutes from './routes/authRoutes';
+import protectedRoutes from './routes/protectedRoutes';
+import transactionsRoutes from './routes/transactionsRoutes';
+import departmentsRoutes from './routes/departmentsRoutes';
 
 const app = express();
+
+// Middlewares
 app.use(express.json());
 app.use(helmet());
 
@@ -30,26 +37,18 @@ app.use(
   })
 );
 
-app.options('/*', cors()); 
+// ✅ Corrigido: substituindo '*' por '/*' para compatibilidade com Express 5
+app.options('/*', cors());
 
 const PORT = process.env.PORT || 5000;
 
-import protectedRoutes from './routes/protectedRoutes';
-import transactionsRoutes from './routes/transactionsRoutes';
-import departmentsRoutes from './routes/departmentsRoutes';
-
-
+// Rotas da API
+app.use('/api/auth', authRoutes);
 app.use('/api', transactionsRoutes);
 app.use('/api', protectedRoutes); 
-app.use('/api', departmentsRoutes)
+app.use('/api', departmentsRoutes);
 
-
-// Rotas
-app.use('/api/auth', authRoutes);
-
+// Inicialização do servidor
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
-
-
-
