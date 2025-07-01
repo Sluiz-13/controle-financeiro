@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'http://localhost:5173',
   'https://controlefinanceiroweb.netlify.app',
-  'https://6863c93---controlefinanceiroweb.netlify.app'
+  'https://controle-financeiro-arf4.onrender.com'
 ];
 
 app.use(
