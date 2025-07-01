@@ -17,7 +17,7 @@ const queryClient = new QueryClient();
 interface PrivateRouteProps {
   children: ReactNode;
 }
-//forçar o git 
+ 
 // Componente para proteger rotas privadas
 const PrivateRoute = ({ children }: PrivateRouteProps) => {
   const { token, isLoading } = useContext(AuthContext);
