@@ -30,7 +30,7 @@ app.use(
   })
 );
 
-app.options('*', cors()); // 👈 permite preflight OPTIONS
+app.options('/*', cors()); 
 
 const PORT = process.env.PORT || 5000;
 
