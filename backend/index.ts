@@ -12,7 +12,8 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   "http://localhost:5173",
   "https://controlefinanceiroweb.netlify.app",
-  "https://6863c93---controlefinanceiroweb.netlify.app"
+  "https://6863c9381ef2de000834a847--controlefinanceiroweb.netlify.app/register",
+  "https://6863c9381ef2de000834a847--controlefinanceiroweb.netlify.app/login"
 ];
 
 app.use(cors({
