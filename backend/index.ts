@@ -37,7 +37,7 @@ app.use(
   })
 );
 
-// ✅ Corrigido: substituindo '*' por '/*' para compatibilidade com Express 5
+
 app.options('/*', cors());
 
 const PORT = process.env.PORT || 5000;
@@ -47,6 +47,12 @@ app.use('/api/auth', authRoutes);
 app.use('/api', transactionsRoutes);
 app.use('/api', protectedRoutes); 
 app.use('/api', departmentsRoutes);
+
+// Rota de fallback para 404 — compatível com Express 5
+app.all('/*', (req, res) => {
+  res.status(404).json({ message: `Rota não encontrada: ${req.originalUrl}` });
+});
+
 
 // Inicialização do servidor
 app.listen(PORT, () => {

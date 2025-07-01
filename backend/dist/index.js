@@ -6,27 +6,43 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
 const helmet_1 = __importDefault(require("helmet"));
+dotenv_1.default.config();
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
-const app = (0, express_1.default)();
-app.use(express_1.default.json());
-app.use((0, helmet_1.default)());
-app.use((0, cors_1.default)({
-    origin: '686328e6e87814544a69451a--controlefinanceiroweb.netlify.app', // Permite todas as origens (para depuração, restrinja depois!)
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Permite todos os métodos comuns
-    allowedHeaders: ['Content-Type', 'Authorization'], // Permite cabeçalhos comuns
-    credentials: true // Permite o envio de cookies e cabeçalhos de autorização
-}));
-const PORT = process.env.PORT || 5000;
 const protectedRoutes_1 = __importDefault(require("./routes/protectedRoutes"));
 const transactionsRoutes_1 = __importDefault(require("./routes/transactionsRoutes"));
 const departmentsRoutes_1 = __importDefault(require("./routes/departmentsRoutes"));
+const app = (0, express_1.default)();
+// Middlewares
+app.use(express_1.default.json());
+app.use((0, helmet_1.default)());
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://controlefinanceiroweb.netlify.app',
+    'https://controle-financeiro-arf4.onrender.com'
+];
+app.use((0, cors_1.default)({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        }
+        else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.options('/*', (0, cors_1.default)());
+const PORT = process.env.PORT || 5000;
+// Rotas da API
+app.use('/api/auth', authRoutes_1.default);
 app.use('/api', transactionsRoutes_1.default);
 app.use('/api', protectedRoutes_1.default);
 app.use('/api', departmentsRoutes_1.default);
-// Rotas
-app.use('/api/auth', authRoutes_1.default);
+// Inicialização do servidor
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
