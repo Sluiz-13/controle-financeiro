@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import Header from '../components/Header';
 import TransactionModal from "../components/TransactionModal";
@@ -12,7 +11,7 @@ export default function Transacoes() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/transactions', {
+        const response = await api.get('/transactions', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

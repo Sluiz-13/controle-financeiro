@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 
 const formatCurrency = (value) => {
   if (isNaN(value) || value === null) {
@@ -24,7 +24,7 @@ const SummaryCards = () => {
     const fetchSummary = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/transactions/financial-summary", {
+        const response = await api.get("/transactions/financial-summary", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

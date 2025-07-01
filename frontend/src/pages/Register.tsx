@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { useNavigate, Link } from "react-router-dom";
 import "./Register.css";
 
@@ -16,7 +15,7 @@ export default function Register() {
     setError("");
     setSuccess("");
     try {
-      await axios.post("http://localhost:5000/api/auth/register", { name, email, password });
+      await api.post("/auth/register", { name, email, password });
       setSuccess("Cadastro realizado com sucesso! Redirecionando para o login...");
       setTimeout(() => {
         navigate("/login");
