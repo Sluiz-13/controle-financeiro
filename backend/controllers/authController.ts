@@ -54,7 +54,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
     if (userResult.rows.length === 0) {
-       res.status(404).json({ error: 'Usuário não encontrado' });
+      res.status(404).json({ error: 'Usuário não encontrado' });
+      return; 
     }
 
     const user = userResult.rows[0];
@@ -68,14 +69,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     console.log('Password match result:', passwordMatch);
 
     if (!passwordMatch) {
-       res.status(401).json({ error: 'Senha incorreta' });
+      res.status(401).json({ error: 'Senha incorreta' });
+      return; 
     }
 
     // Gera o token JWT
-        const jwtSecret = process.env.JWT_SECRET;
+    const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       throw new Error('JWT_SECRET não está definido');
     }
+
     const token = jwt.sign({ id: user.id }, jwtSecret, { expiresIn: '1d' });
 
     res.status(200).json({
