@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 
 import { Request, Response } from 'express';
 
-export const register = async (req: Request, res: Response): Promise<void> => {
+export const register = async (req: Request, res: Response): Promise<Response> => {
   const { name, email, password } = req.body;
 
   try {
@@ -46,7 +46,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const login = async (req: Request, res: Response): Promise<void> => {
+export const login = async (req: Request, res: Response): Promise<Response> => {
   const { email, password } = req.body;
 
   try {
