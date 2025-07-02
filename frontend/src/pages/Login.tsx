@@ -17,10 +17,14 @@ export default function Login() {
       const res = await api.post<{ token: string }>("/auth/login", { email, password });
       login(res.data.token);
       navigate("/");
-    } catch (err) {
-      setError("Erro ao fazer login. Verifique suas credenciais.");
-    }
-  };
+       catch (err: any) {
+          console.error("Erro no login:", err); // <-- log completo
+          if (err.response) {
+            console.log("Status:", err.response.status);
+            console.log("Data:", err.response.data);
+      }
+          setError("Erro ao fazer login. Verifique suas credenciais.");
+       }
 
   return (
     <div className="login-container">
