@@ -10,21 +10,29 @@ export default function Login() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError("");
-    try {
-      const res = await api.post<{ token: string }>("/auth/login", { email, password });
-      login(res.data.token);
-      navigate("/");
-       catch (err: any) {
-          console.error("Erro no login:", err); // <-- log completo
-          if (err.response) {
-            console.log("Status:", err.response.status);
-            console.log("Data:", err.response.data);
-      }
-          setError("Erro ao fazer login. Verifique suas credenciais.");
-       }
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setError("");
+
+  try {
+    const res = await api.post<{ token: string }>("/auth/login", {
+      email: email.trim().toLowerCase(), // <-- importantíssimo
+      password,
+    });
+
+    login(res.data.token);
+    navigate("/");
+  } catch (err: any) {
+    console.error("Erro no login:", err);
+
+    if (err.response) {
+      console.log("Status:", err.response.status);
+      console.log("Data:", err.response.data);
+    }
+
+    setError("Erro ao fazer login. Verifique suas credenciais.");
+  }
+};
 
   return (
     <div className="login-container">
