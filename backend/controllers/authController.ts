@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 
 import { Request, Response } from 'express';
 
-export const register = async (req: Request, res: Response): Promise<Response> => {
+export const register = async (req: Request, res: Response): Promise<void> => {
   const { name, email, password } = req.body;
 
   try {
@@ -46,7 +46,7 @@ export const register = async (req: Request, res: Response): Promise<Response> =
   }
 };
 
-export const login = async (req: Request, res: Response): Promise<Response> => {
+export const login = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
 
   try {
@@ -54,7 +54,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
     if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
+       res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
     const user = userResult.rows[0];
@@ -68,7 +68,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     console.log('Password match result:', passwordMatch);
 
     if (!passwordMatch) {
-      return res.status(401).json({ error: 'Senha incorreta' });
+       res.status(401).json({ error: 'Senha incorreta' });
     }
 
     // Gera o token JWT
