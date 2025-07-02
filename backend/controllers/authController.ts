@@ -59,8 +59,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     const user = userResult.rows[0];
 
+    console.log('Attempting login for email:', email);
+    console.log('Password received:', password);
+    console.log('Hashed password from DB:', user.password);
+
     // Verifica a senha
     const passwordMatch = await bcrypt.compare(password, user.password);
+    console.log('Password match result:', passwordMatch);
+
     if (!passwordMatch) {
       res.status(401).json({ error: 'Senha incorreta' });
     }
