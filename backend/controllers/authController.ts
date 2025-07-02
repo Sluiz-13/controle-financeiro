@@ -54,7 +54,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
     if (userResult.rows.length === 0) {
-      res.status(404).json({ error: 'Usuário não encontrado' });
+      return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
     const user = userResult.rows[0];
@@ -68,7 +68,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     console.log('Password match result:', passwordMatch);
 
     if (!passwordMatch) {
-      res.status(401).json({ error: 'Senha incorreta' });
+      return res.status(401).json({ error: 'Senha incorreta' });
     }
 
     // Gera o token JWT

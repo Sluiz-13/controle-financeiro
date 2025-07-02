@@ -56,13 +56,13 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         // Verifica se o usuário existe
         const userResult = yield db_1.default.query('SELECT * FROM users WHERE email = $1', [email]);
         if (userResult.rows.length === 0) {
-            res.status(404).json({ error: 'Usuário não encontrado' });
+            return res.status(404).json({ error: 'Usuário não encontrado' });
         }
         const user = userResult.rows[0];
         // Verifica a senha
         const passwordMatch = yield bcrypt_1.default.compare(password, user.password);
         if (!passwordMatch) {
-            res.status(401).json({ error: 'Senha incorreta' });
+            return res.status(401).json({ error: 'Senha incorreta' });
         }
         // Gera o token JWT
         const jwtSecret = process.env.JWT_SECRET;
