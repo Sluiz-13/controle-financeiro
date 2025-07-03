@@ -5,6 +5,8 @@ import helmet from 'helmet';
 
 dotenv.config();
 
+
+
 import authRoutes from './routes/authRoutes';
 import protectedRoutes from './routes/protectedRoutes';
 import transactionsRoutes from './routes/transactionsRoutes';
@@ -36,7 +38,7 @@ app.use(
 
 const PORT = process.env.PORT || 5000;
 
-// Rotas da API
+
 console.log("rotas")
 app.use('/api/auth', authRoutes);
 app.use('/api', transactionsRoutes);

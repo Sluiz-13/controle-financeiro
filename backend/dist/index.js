@@ -22,20 +22,12 @@ const allowedOrigins = [
     'https://controle-financeiro-arf4.onrender.com'
 ];
 app.use((0, cors_1.default)({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        }
-        else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: true, // Aceita qualquer origem
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 const PORT = process.env.PORT || 5000;
-// Rotas da API
 console.log("rotas");
 app.use('/api/auth', authRoutes_1.default);
 app.use('/api', transactionsRoutes_1.default);
