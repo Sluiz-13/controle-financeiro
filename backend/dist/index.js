@@ -34,6 +34,7 @@ app.use((0, cors_1.default)({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 const PORT = process.env.PORT || 5000;
+<<<<<<< HEAD
 function startServer() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -50,3 +51,18 @@ function startServer() {
     });
 }
 startServer();
+=======
+console.log("rotas");
+app.use('/api/auth', authRoutes_1.default);
+app.use('/api', transactionsRoutes_1.default);
+app.use('/api', protectedRoutes_1.default);
+app.use('/api', departmentsRoutes_1.default);
+// Rota de fallback para 404 — compatível com Express 5
+app.all('/*', (req, res) => {
+    res.status(404).json({ message: `Rota não encontrada: ${req.originalUrl}` });
+});
+// Inicialização do servidor
+app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+});
+>>>>>>> 3c9f5def760debff2ab3c5d63e55ef2ab3d6e07e

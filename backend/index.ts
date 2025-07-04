@@ -6,6 +6,16 @@ import pool from './config/db';
 
 dotenv.config();
 
+<<<<<<< HEAD
+=======
+
+
+import authRoutes from './routes/authRoutes';
+import protectedRoutes from './routes/protectedRoutes';
+import transactionsRoutes from './routes/transactionsRoutes';
+import departmentsRoutes from './routes/departmentsRoutes';
+
+>>>>>>> 3c9f5def760debff2ab3c5d63e55ef2ab3d6e07e
 const app = express();
 
 // Middlewares
@@ -29,6 +39,7 @@ app.use(
 
 const PORT = process.env.PORT || 5000;
 
+<<<<<<< HEAD
 async function startServer() {
   try {
     await pool.connect();
@@ -41,5 +52,13 @@ async function startServer() {
     process.exit(1); // Encerra o processo se não conseguir conectar ao DB
   }
 }
+=======
+
+console.log("rotas")
+app.use('/api/auth', authRoutes);
+app.use('/api', transactionsRoutes);
+app.use('/api', protectedRoutes); 
+app.use('/api', departmentsRoutes);
+>>>>>>> 3c9f5def760debff2ab3c5d63e55ef2ab3d6e07e
 
 startServer();
