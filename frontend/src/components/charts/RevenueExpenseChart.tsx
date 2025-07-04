@@ -23,7 +23,6 @@ const RevenueExpenseChart = () => {
     if (!transactions) return [];
 
     const monthlyData = transactions.reduce((acc, tx) => {
-      console.log("Processando transação:", tx);
       const month = new Date(tx.date).toLocaleString('default', { month: 'short' });
       if (!acc[month]) {
         acc[month] = { name: month, receita: 0, despesa: 0 };
@@ -34,7 +33,6 @@ const RevenueExpenseChart = () => {
       } else {
         acc[month].despesa += amount;
       }
-      console.log("Dados mensais após processar:", acc[month]);
       return acc;
     }, {} as Record<string, { name: string; receita: number; despesa: number }>);
 

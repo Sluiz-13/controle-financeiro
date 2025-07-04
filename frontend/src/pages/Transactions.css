@@ -77,3 +77,33 @@
   height: ;
 }
 
+/* Botões de ação da tabela ----------------------- */
+.btn-edit,
+.btn-delete {
+  display: inline-flex;       /* ícone + texto lado a lado */
+  align-items: center;
+  gap: 0.25rem;               /* espaço ícone-texto se não usar <span class="ml-1"> */
+  border-width: 1px;
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;         /* ou ajuste para seu design */
+  transition: background-color 0.2s ease;
+}
+
+/* Editar = azul */
+.btn-edit {
+  border-color: #3b82f6;      /* azul (similar ao Tailwind blue-500) */
+  color: #3b82f6;
+}
+.btn-edit:hover {
+  background-color: #e6f0ff;  /* azul clarinho */
+}
+
+/* Excluir = vermelha */
+.btn-delete {
+  border-color: #dc2626;      /* vermelho (Tailwind red-600) */
+  color: #ffffff;
+}
+.btn-delete:hover {
+  background-color: #ffeaea;  /* vermelho clarinho */
+}

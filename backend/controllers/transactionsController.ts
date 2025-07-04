@@ -5,6 +5,7 @@ const createTransaction = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Usuário não autenticado.' });
   }
+
   const { title, amount, type, date, department } = req.body;
   const userId = req.user.id;
 
@@ -12,37 +13,34 @@ const createTransaction = async (req: Request, res: Response) => {
   console.log("Dados recebidos no corpo da requisição:", req.body);
 
   if (!title || !amount || !type || !date) {
-    res.status(400).json({ error: "Campos obrigatorios: title, amount, type e date" });
-    return;
+    return res.status(400).json({ error: "Campos obrigatórios: title, amount, type e date" });
   }
 
   const parsedAmount = parseFloat(amount);
 
   if (isNaN(parsedAmount)) {
-    res.status(400).json({ error: "O valor da transação (amount) deve ser um número válido." });
-    return;
+    return res.status(400).json({ error: "O valor da transação (amount) deve ser um número válido." });
   }
 
   try {
-    // Se um departamento foi informado, verifica se ele existe. Se não, cria um novo.
     if (department) {
       const departmentExists = await isValidDepartment(department, userId);
       if (!departmentExists) {
-        // O departamento não existe, então vamos criá-lo
         const createDeptQuery = 'INSERT INTO departments (name, user_id) VALUES ($1, $2)';
         await pool.query(createDeptQuery, [department, userId]);
+
       }
     }
 
     const query = `
-      INSERT INTO transactions (title, amount, type, date, department)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO transactions (title, amount, type, date, department, user_id)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *;
     `;
-    console.log("Query SQL que será executada:", query); // Adicione esta linha
-    const values = [title, parsedAmount, type, date, department || null];
-    
-    console.log("Valores que serão passados para a query:", values); // Adicione esta linha
+    const values = [title, parsedAmount, type, date, department || null, userId];
+
+    console.log("Query SQL que será executada:", query);
+    console.log("Valores que serão passados para a query:", values);
 
     const result = await pool.query(query, values);
 
@@ -51,10 +49,7 @@ const createTransaction = async (req: Request, res: Response) => {
     console.error("Erro ao criar transação", error);
     res.status(500).json({ error: "Erro interno ao criar transação" });
   }
-}
-
-
-
+};
 
 const getTransactions = async (req: Request, res: Response) => {
   if (!req.user) {

@@ -6,6 +6,8 @@ import TransactionModal from "../components/TransactionModal";
 import Header from "../components/Header";
 import "./Transactions.css";
 import { Button } from "../components/ui/button";
+import { Pencil, Trash2 } from "lucide-react";
+
 import {
   Dialog,
   DialogContent,
@@ -123,13 +125,27 @@ export default function Transactions() {
                     {new Date(tx.date).toLocaleDateString("pt-BR")}
                   </td>
                   <td className="py-3 px-4">
-                    <Button onClick={() => openModalForEdit(tx)} variant="outline" size="sm">
-                      Editar
+                    <Button
+                      onClick={() => openModalForEdit(tx)}
+                      variant="outline"
+                      size="sm"
+                      className="btn-edit"
+                    >
+                      <Pencil size={16} />
+                      <span className="ml-1">Editar</span>
                     </Button>
-                    <Button onClick={() => handleDelete(tx.id)} variant="destructive" size="sm" className="ml-2">
-                      Excluir
+
+                    <Button
+                      onClick={() => handleDelete(tx.id)}
+                      variant="destructive"
+                      size="sm"
+                      className="btn-delete ml-2"
+                    >
+                      <Trash2 size={16} />
+                      <span className="ml-1">Excluir</span>
                     </Button>
                   </td>
+
                 </tr>
               ))}
             </tbody>

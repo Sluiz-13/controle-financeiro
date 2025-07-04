@@ -45,11 +45,14 @@
 }
 
 .chart-container {
-  background-color: var(--card-bg);
+  background-color: white;
   padding: 1.5rem;
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
+  border-radius: 0.75rem;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  max-width: 800px;
+  margin: auto;
 }
+
 
 .chart-container.full-width {
   grid-column: 1 / -1;
