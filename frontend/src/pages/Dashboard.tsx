@@ -1,66 +1,41 @@
-// RevenueExpenseChart.js
 import React from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  LabelList,
-  ResponsiveContainer,
-} from "recharts";
+import "./Dashboard.css";
+import Header from "../components/Header";
+import SummaryCards from "../components/SummaryCards";
+import RevenueExpenseChart from "../components/charts/RevenueExpenseChart";
+import CategoryChart from "../components/charts/CategoryChart";
 
-// 💰 Dados de exemplo
-const data = [
-  { name: "Janeiro", Receita: 12000, Despesa: 8000 },
-  { name: "Fevereiro", Receita: 15000, Despesa: 9500 },
-  { name: "Março", Receita: 10000, Despesa: 7000 },
-];
-
-export default function RevenueExpenseChart() {
+export default function Dashboard() {
   return (
-    <div className="chart-container">
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart
-          data={data}
-          margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
-          barCategoryGap={20}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip
-            formatter={(value, name) =>
-              [`R$ ${value.toFixed(2)}`, name === "Receita" ? "Receita" : "Despesa"]
-            }
-          />
-          <Bar
-            dataKey="Receita"
-            fill="#16A34A"
-            animationDuration={800}
-            radius={[4, 4, 0, 0]}
-          >
-            <LabelList
-              dataKey="Receita"
-              position="top"
-              formatter={(v) => `R$ ${v}`}
-            />
-          </Bar>
-          <Bar
-            dataKey="Despesa"
-            fill="#DC2626"
-            animationDuration={800}
-            radius={[4, 4, 0, 0]}
-          >
-            <LabelList
-              dataKey="Despesa"
-              position="top"
-              formatter={(v) => `R$ ${v}`}
-            />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+    <div className="app-container">
+      <Header />
+      <main className="dashboard-main">
+        <SummaryCards />
+
+        <div className="charts-grid">
+          <div className="chart-container">
+            <h2 className="chart-title">Receitas vs Despesas</h2>
+            <div className="chart-content">
+              <RevenueExpenseChart />
+            </div>
+          </div>
+
+          <div className="chart-container">
+            <h2 className="chart-title">Despesas por Categoria</h2>
+            <div className="chart-content">
+              <CategoryChart />
+            </div>
+          </div>
+
+          {/* Gráfico de Saldo Mensal (ocupando a largura total) - A ser implementado */}
+          <div className="chart-container min-w-full">
+            <h2 className="chart-title">Saldo Mensal</h2>
+            <div className="chart-content">
+              <p style={{ textAlign: 'center', padding: '20px' }}>Área do Gráfico de Linha (A ser implementado)</p>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
