@@ -3,6 +3,14 @@ import 'dotenv/config';
 
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: { id: string };
+    }
+  }
+}
+
 const verifyToken: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
 

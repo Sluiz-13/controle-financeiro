@@ -2,13 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
+import pool from './config/db';
 
 dotenv.config();
-
-import authRoutes from './routes/authRoutes';
-import protectedRoutes from './routes/protectedRoutes';
-import transactionsRoutes from './routes/transactionsRoutes';
-import departmentsRoutes from './routes/departmentsRoutes';
 
 const app = express();
 
@@ -31,25 +27,19 @@ app.use(
   })
 );
 
-
-
-
 const PORT = process.env.PORT || 5000;
 
-// Rotas da API
-console.log("rotas")
-app.use('/api/auth', authRoutes);
-app.use('/api', transactionsRoutes);
-app.use('/api', protectedRoutes); 
-app.use('/api', departmentsRoutes);
+async function startServer() {
+  try {
+    await pool.connect();
+    console.log('Conectado ao PostgreSQL com sucesso!');
+    app.listen(PORT, () => {
+      console.log(`Servidor rodando na porta ${PORT}`);
+    });
+  } catch (err) {
+    console.error('Erro ao conectar ao PostgreSQL ou iniciar o servidor:', err);
+    process.exit(1); // Encerra o processo se não conseguir conectar ao DB
+  }
+}
 
-// Rota de fallback para 404 — compatível com Express 5
-app.all('/*', (req, res) => {
-  res.status(404).json({ message: `Rota não encontrada: ${req.originalUrl}` });
-});
-
-
-// Inicialização do servidor
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+startServer();
