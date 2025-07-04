@@ -42,12 +42,13 @@ const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
             }
         }
         const query = `
-    INSERT INTO transactions (title, amount, type, date, department, user_id)
-    VALUES ($1, $2, $3, $4, $5, $6)
-    RETURNING *;
+      INSERT INTO transactions (title, amount, type, date, department, user_id)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *;
     `;
+        console.log("Query SQL que será executada:", query); // Adicione esta linha
         const values = [title, parsedAmount, type, date, department || null, userId];
-        console.log("Valores sendo inseridos no banco de dados:", values);
+        console.log("Valores que serão passados para a query:", values); // Adicione esta linha
         const result = yield db_1.default.query(query, values);
         res.status(201).json(result.rows[0]);
     }

@@ -5,17 +5,17 @@ const createTransaction = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Usuário não autenticado.' });
   }
-  const {title, amount, type, date, department } = req.body;
+  const { title, amount, type, date, department } = req.body;
   const userId = req.user.id;
 
   console.log("Usuário autenticado:", req.user);
   console.log("Dados recebidos no corpo da requisição:", req.body);
 
   if (!title || !amount || !type || !date) {
-    res.status(400).json({error:"Campos obrigatorios: title, amount, type e date"});
+    res.status(400).json({ error: "Campos obrigatorios: title, amount, type e date" });
     return;
   }
-  
+
   const parsedAmount = parseFloat(amount);
 
   if (isNaN(parsedAmount)) {
@@ -35,22 +35,20 @@ const createTransaction = async (req: Request, res: Response) => {
     }
 
     const query = `
-    INSERT INTO transactions (title, amount, type, date, department, user_id)
-    VALUES ($1, $2, $3, $4, $5, $6)
-    RETURNING *;
+      INSERT INTO transactions (title, amount, type, date, department, user_id)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *;
     `;
     
-    const values = [title, parsedAmount, type, date, department || null, userId];
-    console.log("Valores sendo inseridos no banco de dados:", values);
-
+    const values = [title, parsedAmount, type, date, department || null];
     const result = await pool.query(query, values);
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error("Erro ao criar transação", error); 
-    res.status(500).json({error:"Erro interno ao criar transação"});
+    console.error("Erro ao criar transação", error);
+    res.status(500).json({ error: "Erro interno ao criar transação" });
   }
-};
+}
 
 
 
