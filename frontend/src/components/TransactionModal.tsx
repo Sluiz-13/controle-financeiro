@@ -77,7 +77,7 @@ export default function TransactionModal({
   /* mutation: cria ou atualiza */
   const mutation = useMutation({
     mutationFn: (formData: TransactionForm) => {
-      const dataToSend = { ...formData, amount: Number(formData.amount) };
+      const dataToSend = { ...formData, amount: Number(formData.amount), expected: false };
       return transactionId
         ? updateTransaction(transactionId, dataToSend)
         : createTransaction(dataToSend);

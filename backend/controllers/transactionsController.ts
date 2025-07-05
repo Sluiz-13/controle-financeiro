@@ -139,24 +139,40 @@ const updateTransaction = async (req: Request, res: Response) => {
   const { id } = req.params;
   const userId = req.user.id;
   const { title, amount, type, department, expected } = req.body;
+  console.log("Dados recebidos para atualização:", req.body);
+  console.log("ID da transação para atualização:", id);
+  console.log("ID do usuário autenticado:", userId);
+
 
   try {
-    const result = await pool.query(
-      `UPDATE transactions
-       SET title = $1, amount = $2, type = $3, department = $4, expected = $5
-       WHERE id = $6 AND user_id = $7
-       RETURNING *`,
-      [title, amount, type, department, expected, id, userId]
-    );
+    const query = `
+      UPDATE transactions
+      SET title = $1, amount = $2, type = $3, department = $4, expected = $5
+      WHERE id = $6 AND user_id = $7
+      RETURNING *;
+    `;
+    const values = [title, amount, type, department, expected, id, userId];
+
+    console.log("Query de atualização que será executada:", query);
+    console.log("Valores para a query de atualização:", values);
+    console.log('ID param:', id);
+    console.log('Body recebido:', req.body);
+    console.log('SQL a executar:', query, values);
+
+    const result = await pool.query(query, values);
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ error: 'Transação não encontrada' });
+      return res.status(404).json({ error: 'Transação não encontrada ou não pertence ao usuário.' });
     }
 
     res.status(200).json(result.rows[0]);
-  } catch (error) {
-    console.error('Erro ao atualizar transação:', error);
-    res.status(500).json({ error: 'Erro interno ao atualizar' });
+  } catch (error: any) {
+    console.error('Erro detalhado ao atualizar transação:', error);
+    res.status(500).json({ 
+      error: 'Erro interno ao atualizar a transação.', 
+      details: error.message, 
+      code: error.code 
+    });
   }
 };
 

@@ -45,6 +45,30 @@
 }
 
 .chart-container {
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* Media Query para telas menores (ex: tablets e celulares) */
+@media (max-width: 768px) {
+  .dashboard-main {
+    padding: 1rem;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr; /* Uma coluna */
+  }
+}
+
+@media (max-width: 640px) {
+  .chart-container {
+    padding: 1rem;
+  }
+}
+
+.chart-container {
   background-color: var(--card-bg);
   padding: 1.5rem;
   border-radius: var(--border-radius);

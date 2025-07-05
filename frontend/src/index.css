@@ -105,6 +105,36 @@ body {
   border-bottom-color: var(--color-balance);
 }
 
+.menu-toggle {
+  display: none; /* Oculto por padrão */
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .app-header nav {
+    display: none; /* Oculta a navegação normal */
+    flex-direction: column;
+    position: absolute;
+    top: 60px; /* Altura do header */
+    left: 0;
+    width: 100%;
+    background-color: var(--bg-dark);
+    padding: 1rem 0;
+  }
+
+  .app-header nav.open {
+    display: flex; /* Exibe o menu quando aberto */
+  }
+
+  .menu-toggle {
+    display: block; /* Exibe o botão do menu */
+  }
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

@@ -91,3 +91,9 @@
 .register-footer a:hover {
   color: white;
 }
+
+@media (max-width: 400px) {
+  .register-card {
+    padding: 1.5rem;
+  }
+}

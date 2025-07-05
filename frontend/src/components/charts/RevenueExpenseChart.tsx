@@ -1,7 +1,18 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import { getTransactions } from '../../services/transactionsService';
+import {
+  BarChart,   
+  Bar,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  LabelList,
+  ResponsiveContainer,
+} from "recharts";
+
 
 // --- Tipos ---
 interface Transaction {
@@ -46,17 +57,71 @@ const RevenueExpenseChart = () => {
 
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis tickFormatter={(value) => new Intl.NumberFormat('pt-BR', { notation: 'compact', compactDisplay: 'short' }).format(value)} />
-        <Tooltip formatter={(value: number) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} />
-        <Legend />
-        <Bar dataKey="receita" fill="#10b981" name="Receita" />
-        <Bar dataKey="despesa" fill="#ef4444" name="Despesa" />
+      <BarChart data={chartData} barCategoryGap={20}>
+        {/* grade mais suave */}
+        <CartesianGrid stroke="#d1d5db" strokeDasharray="3 3" />
+
+        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+
+        <YAxis
+          tickFormatter={(v) =>
+            new Intl.NumberFormat("pt-BR", {
+              notation: "compact",
+              compactDisplay: "short",
+            }).format(v)
+          }
+          tick={{ fontSize: 12 }}
+        />
+
+        {/* tooltip customizado */}
+        <Tooltip
+          cursor={{ fill: "rgba(0,0,0,0.04)" }}
+          contentStyle={{
+            borderRadius: 8,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            border: "none",
+          }}
+          formatter={(v: number) =>
+            v.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })
+          }
+        />
+
+        <Legend wrapperStyle={{ fontSize: 13 }} />
+
+        {/* barras: verde (#22c55e) e vermelho (#ef4444) */}
+        <Bar dataKey="receita" name="Receita" fill="#22c55e">
+          <LabelList
+            dataKey="receita"
+            position="top"
+            formatter={(v: number) =>
+              v.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+                maximumFractionDigits: 0,
+              })
+            }
+          />
+        </Bar>
+
+        <Bar dataKey="despesa" name="Despesa" fill="#ef4444">
+          <LabelList
+            dataKey="despesa"
+            position="top"
+            formatter={(v: number) =>
+              v.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+                maximumFractionDigits: 0,
+              })
+            }
+          />
+        </Bar>
       </BarChart>
     </ResponsiveContainer>
   );
-};
+}
 
 export default RevenueExpenseChart;

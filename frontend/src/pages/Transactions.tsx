@@ -83,7 +83,7 @@ export default function Transactions() {
       <Header />
       <main className="container">
       </main>
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4 transaction-header">
         <h1 className="text-2xl font-bold">Minhas Transações</h1>
         <Button onClick={openModalForNew} className="btn-primary">
           Nova Transação
@@ -111,20 +111,20 @@ export default function Transactions() {
             <tbody>
               {transactions.map((tx) => (
                 <tr key={tx.id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4">{tx.title}</td>
-                  <td className="py-3 px-4">
+                  <td data-label="Descrição" className="py-3 px-4">{tx.title}</td>
+                  <td data-label="Valor" className="py-3 px-4">
                     {tx.amount.toLocaleString("pt-BR", {
                       style: "currency",
                       currency: "BRL",
                     })}
                   </td>
-                  <td className="py-3 px-4">
+                  <td data-label="Tipo" className="py-3 px-4">
                     <span className={`badge ${tx.type}`}>{tx.type}</span>
                   </td>
-                  <td className="py-3 px-4">
+                  <td data-label="Data" className="py-3 px-4">
                     {new Date(tx.date).toLocaleDateString("pt-BR")}
                   </td>
-                  <td className="py-3 px-4">
+                  <td data-label="Ações" className="py-3 px-4">
                     <Button
                       onClick={() => openModalForEdit(tx)}
                       variant="outline"

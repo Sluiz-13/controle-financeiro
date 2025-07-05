@@ -87,3 +87,9 @@
 .login-footer a:hover {
   color: white;
 }
+
+@media (max-width: 400px) {
+  .login-card {
+    padding: 1.5rem;
+  }
+}
