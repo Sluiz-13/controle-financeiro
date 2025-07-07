@@ -2,7 +2,6 @@
 
 API RESTful desenvolvida com Node.js, TypeScript e PostgreSQL para controle de finanças pessoais ou empresariais. O sistema possui autenticação JWT, registro de transações categorizadas por departamento e vínculo direto com o usuário.
 
----
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -15,34 +14,30 @@ API RESTful desenvolvida com Node.js, TypeScript e PostgreSQL para controle de f
 - pg (PostgreSQL client)
 - CORS
 
----
 
 ## 📁 Estrutura do Projeto
 
 controle-financeiro/
 ├── backend/
-│ ├── controllers/
-│ ├── middleware/
-│ ├── routes/
-│ ├── db/
-│ ├── .env.example
-│ └── index.ts
+│   ├── controllers/
+│   ├── middleware/
+│   ├── routes/
+│   ├── db/
+│   ├── .env.example
+│   └── index.ts
 ├── frontend/
-│  ├── assents/
-│  ├── components/
-│  ├── pages/
-│  ├── lib/
-│  ├── services/
-│  ├── routes/
+│   ├── assets/
+│   ├── components/
+│   ├── pages/
+│   ├── lib/
+│   ├── services/
+│   └── routes/
 
-
----
 
 ## 🔐 Autenticação
 
 O sistema utiliza autenticação via JWT. Após o login, o usuário recebe um token que deve ser enviado no header das requisições protegidas.
 
----
 
 🛠️ Como rodar localmente
 
