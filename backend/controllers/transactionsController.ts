@@ -140,8 +140,6 @@ const updateTransaction = async (req: Request, res: Response) => {
   const userId = req.user.id;
   const { title, amount, type, department, expected } = req.body;
   console.log("Dados recebidos para atualização:", req.body);
-  console.log("ID da transação para atualização:", id);
-  console.log("ID do usuário autenticado:", userId);
 
 
   try {
@@ -153,11 +151,7 @@ const updateTransaction = async (req: Request, res: Response) => {
     `;
     const values = [title, amount, type, department, expected, id, userId];
 
-    console.log("Query de atualização que será executada:", query);
     console.log("Valores para a query de atualização:", values);
-    console.log('ID param:', id);
-    console.log('Body recebido:', req.body);
-    console.log('SQL a executar:', query, values);
 
     const result = await pool.query(query, values);
 
