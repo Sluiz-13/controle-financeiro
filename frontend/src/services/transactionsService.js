@@ -41,3 +41,10 @@ export const createTransaction = (transactionData) => {
 export const updateTransaction = (id, transactionData) => {
   return api.put(`/transactions/${id}`, transactionData, getAuthHeaders());
 };
+
+/**
+ * Busca o resumo financeiro geral (total_entrada, total_saida, saldo).
+ */
+export const getFinancialSummary = () => {
+  return api.get('/transactions/financial-summary', getAuthHeaders());
+};

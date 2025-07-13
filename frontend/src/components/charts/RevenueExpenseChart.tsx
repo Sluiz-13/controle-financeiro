@@ -1,6 +1,4 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getTransactions } from '../../services/transactionsService';
 import {
   BarChart,   
   Bar,
@@ -24,11 +22,12 @@ interface Transaction {
   date: string;
 }
 
-const RevenueExpenseChart = () => {
-  const { data: transactions = [], isLoading } = useQuery<Transaction[], Error>({
-    queryKey: ['transactions'],
-    queryFn: () => getTransactions().then((res) => res.data),
-  });
+interface RevenueExpenseChartProps {
+  transactions: Transaction[];
+  isLoading: boolean;
+}
+
+const RevenueExpenseChart = ({ transactions, isLoading }: RevenueExpenseChartProps) => {
 
   const processData = () => {
     if (!transactions) return [];

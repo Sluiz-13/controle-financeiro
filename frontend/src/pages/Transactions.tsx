@@ -113,10 +113,7 @@ export default function Transactions() {
                 <tr key={tx.id} className="border-b hover:bg-gray-50">
                   <td data-label="Descrição" className="py-3 px-4">{tx.title}</td>
                   <td data-label="Valor" className="py-3 px-4">
-                    {tx.amount.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    })}
+                    {"R$ " + parseFloat(tx.amount).toFixed(2).replace('.', ',')}
                   </td>
                   <td data-label="Tipo" className="py-3 px-4">
                     <span className={`badge ${tx.type}`}>{tx.type}</span>

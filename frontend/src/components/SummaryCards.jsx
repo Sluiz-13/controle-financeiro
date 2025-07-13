@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import api from '../services/api';
+import React from 'react';
 
 const formatCurrency = (value) => {
   if (isNaN(value) || value === null) {
@@ -11,33 +10,22 @@ const formatCurrency = (value) => {
   });
 };
 
-const SummaryCards = () => {
-  const [summary, setSummary] = useState({
-    income: 0,
-    expense: 0,
-    balance: 0,
-  });
+const SummaryCards = ({ summary, isLoading }) => {
+  if (isLoading) {
+    return (
+      <div className="summary-cards">
+        <p>Carregando resumo...</p>
+      </div>
+    );
+  }
 
-  
-
-  useEffect(() => {
-    const fetchSummary = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await api.get("/transactions/financial-summary", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setSummary(response.data);
-      } catch (err) {
-        console.error("Erro ao buscar resumo:", err);
-      }
-    };
-
-    fetchSummary();
-  }, []);
+  if (!summary) {
+    return (
+      <div className="summary-cards">
+        <p>Nenhum resumo disponível.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="summary-cards">

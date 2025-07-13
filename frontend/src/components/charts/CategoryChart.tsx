@@ -1,7 +1,5 @@
 import React from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { useQuery } from '@tanstack/react-query';
-import { getTransactions } from '../../services/transactionsService';
 
 // --- Tipos ---
 interface Transaction {
@@ -13,14 +11,15 @@ interface Transaction {
   date: string;
 }
 
+interface CategoryChartProps {
+  transactions: Transaction[];
+  isLoading: boolean;
+}
+
 // --- Cores para o gráfico ---
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF4560'];
 
-const CategoryChart = () => {
-  const { data: transactions = [], isLoading } = useQuery<Transaction[], Error>({
-    queryKey: ['transactions'],
-    queryFn: () => getTransactions().then((res) => res.data),
-  });
+const CategoryChart = ({ transactions, isLoading }: CategoryChartProps) => {
 
   const processData = () => {
     if (!transactions) return [];
