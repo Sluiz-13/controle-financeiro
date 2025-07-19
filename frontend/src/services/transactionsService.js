@@ -22,7 +22,7 @@ export const getTransactions = () => {
  * @param {string} id - O ID da transação a ser deletada.
  */
 export const deleteTransaction = (id) => {
-  return api.delete(`/api/transactions/${id}`, getAuthHeaders());
+  return api.delete(`/transactions/${id}`, getAuthHeaders());
 };
 
 /**
