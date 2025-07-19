@@ -46,5 +46,5 @@ export const updateTransaction = (id, transactionData) => {
  * Busca o resumo financeiro geral (total_entrada, total_saida, saldo).
  */
 export const getFinancialSummary = () => {
-  return api.get('/api/transactions/financial-summary', getAuthHeaders());
+  return api.get('/transactions/financial-summary', getAuthHeaders());
 };
