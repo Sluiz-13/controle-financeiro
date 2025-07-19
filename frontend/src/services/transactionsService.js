@@ -14,7 +14,7 @@ const getAuthHeaders = () => ({
  * Busca todas as transações.
  */
 export const getTransactions = () => {
-  return api.get('/api/transactions', getAuthHeaders());
+  return api.get('/transactions', getAuthHeaders());
 };
 
 /**
@@ -30,7 +30,7 @@ export const deleteTransaction = (id) => {
  * @param {object} transactionData - Os dados da nova transação.
  */
 export const createTransaction = (transactionData) => {
-  return api.post('/api/transactions', transactionData, getAuthHeaders());
+  return api.post('/transactions', transactionData, getAuthHeaders());
 };
 
 /**
@@ -39,7 +39,7 @@ export const createTransaction = (transactionData) => {
  * @param {object} transactionData - Os novos dados da transação.
  */
 export const updateTransaction = (id, transactionData) => {
-  return api.put(`/api/transactions/${id}`, transactionData, getAuthHeaders());
+  return api.put(`/transactions/${id}`, transactionData, getAuthHeaders());
 };
 
 /**
