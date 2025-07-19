@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 const formatCurrency = (value) => {
   if (isNaN(value) || value === null) {
@@ -11,6 +12,14 @@ const formatCurrency = (value) => {
 };
 
 const SummaryCards = ({ summary, isLoading }) => {
+  // Estado para controlar a visibilidade, começando como oculto (false)
+  const [isBalanceVisible, setIsBalanceVisible] = useState(false);
+
+  // Função para alternar a visibilidade
+  const toggleVisibility = () => {
+    setIsBalanceVisible(!isBalanceVisible);
+  };
+
   if (isLoading) {
     return (
       <div className="summary-cards">
@@ -27,6 +36,9 @@ const SummaryCards = ({ summary, isLoading }) => {
     );
   }
 
+  // Placeholder para quando os valores estiverem ocultos
+  const hiddenPlaceholder = "R$ ••••••";
+
   return (
     <div className="summary-cards">
       <div className="summary-card">
@@ -34,7 +46,7 @@ const SummaryCards = ({ summary, isLoading }) => {
           <span>Entradas</span>
         </div>
         <div className="card-body">
-          {formatCurrency(summary.total_entrada)}
+          {isBalanceVisible ? formatCurrency(summary.total_entrada) : hiddenPlaceholder}
         </div>
       </div>
 
@@ -43,16 +55,23 @@ const SummaryCards = ({ summary, isLoading }) => {
           <span>Saídas</span>
         </div>
         <div className="card-body">
-          {formatCurrency(summary.total_saida)}
+          {isBalanceVisible ? formatCurrency(summary.total_saida) : hiddenPlaceholder}
         </div>
       </div>
 
       <div className="summary-card">
-        <div className="card-header balance">
+        <div className="card-header balance" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>Saldo</span>
+          <button 
+            onClick={toggleVisibility} 
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}
+            aria-label={isBalanceVisible ? "Ocultar saldo" : "Mostrar saldo"}
+          >
+            {isBalanceVisible ? <Eye size={22} /> : <EyeOff size={22} />}
+          </button>
         </div>
         <div className="card-body">
-          {formatCurrency(summary.saldo)}
+          {isBalanceVisible ? formatCurrency(summary.saldo) : hiddenPlaceholder}
         </div>
       </div>
     </div>

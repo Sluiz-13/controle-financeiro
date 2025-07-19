@@ -14,7 +14,7 @@ const getAuthHeaders = () => ({
  * Busca todas as transações.
  */
 export const getTransactions = () => {
-  return api.get('/transactions', getAuthHeaders());
+  return api.get('/api/transactions', getAuthHeaders());
 };
 
 /**
@@ -22,7 +22,7 @@ export const getTransactions = () => {
  * @param {string} id - O ID da transação a ser deletada.
  */
 export const deleteTransaction = (id) => {
-  return api.delete(`/transactions/${id}`, getAuthHeaders());
+  return api.delete(`/api/transactions/${id}`, getAuthHeaders());
 };
 
 /**
@@ -30,7 +30,7 @@ export const deleteTransaction = (id) => {
  * @param {object} transactionData - Os dados da nova transação.
  */
 export const createTransaction = (transactionData) => {
-  return api.post('/transactions', transactionData, getAuthHeaders());
+  return api.post('/api/transactions', transactionData, getAuthHeaders());
 };
 
 /**
@@ -39,12 +39,12 @@ export const createTransaction = (transactionData) => {
  * @param {object} transactionData - Os novos dados da transação.
  */
 export const updateTransaction = (id, transactionData) => {
-  return api.put(`/transactions/${id}`, transactionData, getAuthHeaders());
+  return api.put(`/api/transactions/${id}`, transactionData, getAuthHeaders());
 };
 
 /**
  * Busca o resumo financeiro geral (total_entrada, total_saida, saldo).
  */
 export const getFinancialSummary = () => {
-  return api.get('/transactions/financial-summary', getAuthHeaders());
+  return api.get('/api/transactions/financial-summary', getAuthHeaders());
 };
