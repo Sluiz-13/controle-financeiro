@@ -105,7 +105,7 @@ export default function Transactions() {
                 <th className="py-3 px-4">Valor</th>
                 <th className="py-3 px-4">Tipo</th>
                 <th className="py-3 px-4">Data</th>
-                <th className="py-3 px-4">Descrição</th>
+                <th className="py-3 px-4">Departamento</th>
                 <th className="py-3 px-4">Ações</th>
               </tr>
             </thead>
