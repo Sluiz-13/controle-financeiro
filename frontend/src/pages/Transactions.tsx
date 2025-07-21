@@ -105,6 +105,7 @@ export default function Transactions() {
                 <th className="py-3 px-4">Valor</th>
                 <th className="py-3 px-4">Tipo</th>
                 <th className="py-3 px-4">Data</th>
+                <th className="py-3 px-4">Descrição</th>
                 <th className="py-3 px-4">Ações</th>
               </tr>
             </thead>
@@ -120,6 +121,9 @@ export default function Transactions() {
                   </td>
                   <td data-label="Data" className="py-3 px-4">
                     {new Date(tx.date).toLocaleDateString("pt-BR")}
+                  </td>
+                  <td data-label="Departamento" className="py-3 px-4">
+                    <span className={`py-3 px-4" ${tx.department}`}>{tx.department}</span>
                   </td>
                   <td data-label="Ações" className="py-3 px-4">
                     <Button
