@@ -180,21 +180,25 @@ export default function TransactionModal({
             </div>
 
             <div>
-              <label className="form-label" htmlFor="department">
-                Departamento
-              </label>
-              <input
-                id="department"
-                name="department"
-                type="text"
-                placeholder="Ex: Trabalho, Casa"
-                value={form.department}
-                onChange={handleChange}
-                disabled={mutation.isPending}
-                className="form-input"
-                required
-              />
-            </div>
+                <label className="form-label" htmlFor="department">
+                  Departamento
+                </label>
+                <select
+                  id="department"
+                  name="department"
+                  value={form.department}
+                  onChange={handleChange}
+                  disabled={mutation.isPending}
+                  className="form-input"
+                  required
+                >
+                  <option value="">Selecione</option>
+                  <option value="Trabalho">Trabalho</option>
+                  <option value="Casa">Casa</option>
+                  <option value="Estudos">Estudos</option>
+                  <option value="Lazer">Lazer</option>
+                </select>
+              </div>
           </div>
 
           {/* Data */}
