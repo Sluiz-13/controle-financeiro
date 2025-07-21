@@ -197,6 +197,7 @@ export default function TransactionModal({
                   <option value="Casa">Casa</option>
                   <option value="Estudos">Estudos</option>
                   <option value="Lazer">Lazer</option>
+                  <option value="Cartão">Cartão</option>
                 </select>
               </div>
           </div>
