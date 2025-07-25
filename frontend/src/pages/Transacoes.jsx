@@ -66,7 +66,7 @@ export default function Transacoes() {
                         <td className="py-2 px-4 capitalize">{tx.type}</td>
                         <td className="py-2 px-4">{tx.department}</td>
                         <td className="py-2 px-4">
-                          {new Date(tx.date).toLocaleDateString("pt-BR")}
+                          {new Date(tx.date).valueOf.toLocaleDateString("pt-BR")}
                         </td>
                       </tr>
                     ))}
