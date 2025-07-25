@@ -63,31 +63,33 @@ const getTransactions = async (req: Request, res: Response) => {
     const { month, year, type, department } = req.query;
 
     let query = `SELECT * FROM transactions WHERE user_id = $1`;
-    let params = [userId];
+    let params = (string | number) [] = [userId]
     let paramIndex = 2;
 
     if (month) {
-      query += ` AND EXTRACT(MONTH FROM date) = ${paramIndex}`;
+      query += ` AND EXTRACT(YEAR FROM date) = ${paramIndex}`
       params.push(month as string);
       paramIndex++;
     }
 
     if (year) {
-      query += ` AND EXTRACT(YEAR FROM date) = ${paramIndex}`;
+      query += ` AND EXTRACT(YEAR FROM date) = ${paramIndex}`
       params.push(year as string);
       paramIndex++;
     }
 
     if (type) {
-      query += ` AND type = ${paramIndex}`;
+      query += ` AND type = ${paramIndex}`
       params.push(type as string);
       paramIndex++;
     }
 
     if (department) {
-      query += ` AND department = ${paramIndex}`;
+      query += ` AND department = ${paramIndex}`
       params.push(department as string);
     }
+
+    query += ` ORDER BY date DESC`;
 
     const { rows } = await pool.query(query, params);
     res.json(rows);
