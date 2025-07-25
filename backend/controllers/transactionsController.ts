@@ -63,11 +63,11 @@ const getTransactions = async (req: Request, res: Response) => {
     const { month, year, type, department } = req.query;
 
     let query = `SELECT * FROM transactions WHERE user_id = $1`;
-    let params = (string | number) [] = [userId]
+    let params: (string | number)[] = [userId];
     let paramIndex = 2;
 
     if (month) {
-      query += ` AND EXTRACT(YEAR FROM date) = ${paramIndex}`
+      query += ` AND EXTRACT(MONTH FROM date) = ${paramIndex}`
       params.push(month as string);
       paramIndex++;
     }
