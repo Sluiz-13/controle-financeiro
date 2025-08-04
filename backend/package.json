@@ -7,8 +7,7 @@
   "build": "tsc",
   "start": "node dist/index.js",
   "postinstall": "pnpx prisma generate"
-}
-
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
