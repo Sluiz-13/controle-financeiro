@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Login.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Register from "./pages/Register.tsx";
+import Savings from "./pages/Savings.tsx";
 
 // Cria uma instância do QueryClient
 const queryClient = new QueryClient();
@@ -68,6 +69,14 @@ export default function App() {
               element={
                 <PrivateRoute>
                   <Transactions />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/savings"
+              element={
+                <PrivateRoute>
+                  <Savings />
                 </PrivateRoute>
               }
             />

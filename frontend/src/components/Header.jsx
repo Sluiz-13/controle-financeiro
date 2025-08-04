@@ -5,6 +5,8 @@ import { AuthContext } from "../context/AuthContext";
 import TransactionModal from "../components/TransactionModal";
 import Transactions from '../pages/Transactions';
 import Transacoes from '../pages/Transacoes';
+import Savings from '../pages/Savings';
+
 
 const Header = () => {
   const { logout } = useContext(AuthContext);
@@ -31,7 +33,7 @@ const Header = () => {
       <nav className={`nav-links ${isMenuOpen ? 'open' : ''}`}>
         <Link to="/" className="nav-link" onClick={() => isMenuOpen && toggleMenu()}>Dashboard</Link>
         <Link to="/transactions" className="nav-link" onClick={() => isMenuOpen && toggleMenu()}>Transações</Link>
-        <Link to="/" className="nav-link" onClick={() => isMenuOpen && toggleMenu()}>Economias</Link>
+        <Link to="/savings" className="nav-link" onClick={() => isMenuOpen && toggleMenu()}>Economias</Link>
         <Link onClick={() => { handleLogout(); if (isMenuOpen) toggleMenu(); }} className="nav-link">Logout</Link>
       </nav>
     </header>

@@ -1,4 +1,4 @@
-import api from '../assets/api';
+import api from '../lib/api';
 
 // Função para buscar o token do localStorage
 const getToken = () => localStorage.getItem('token');

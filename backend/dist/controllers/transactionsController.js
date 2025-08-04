@@ -13,44 +13,41 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getFinancialSummary = exports.getSummaryByDepartment = exports.isValidDepartment = exports.getMonthlyResume = exports.getByDepartment = exports.getMonthlySummary = exports.getTransactionsByDepartment = exports.deleteTransaction = exports.updateTransaction = exports.getTransactionSummary = exports.getTransactions = exports.createTransaction = void 0;
-const db_1 = __importDefault(require("../config/db"));
+const prisma_1 = __importDefault(require("../config/prisma"));
+const client_1 = require("@prisma/client");
 const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user) {
         return res.status(401).json({ error: 'Usuário não autenticado.' });
     }
     const { title, amount, type, date, department } = req.body;
-    const userId = req.user.id;
-    console.log("Usuário autenticado:", req.user);
-    console.log("Dados recebidos no corpo da requisição:", req.body);
+    const userId = Number(req.user.id);
     if (!title || !amount || !type || !date) {
-        res.status(400).json({ error: "Campos obrigatorios: title, amount, type e date" });
-        return;
+        return res.status(400).json({ error: "Campos obrigatórios: title, amount, type e date" });
     }
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount)) {
-        res.status(400).json({ error: "O valor da transação (amount) deve ser um número válido." });
-        return;
+        return res.status(400).json({ error: "O valor da transação (amount) deve ser um número válido." });
     }
     try {
-        // Se um departamento foi informado, verifica se ele existe. Se não, cria um novo.
         if (department) {
             const departmentExists = yield isValidDepartment(department, userId);
             if (!departmentExists) {
-                // O departamento não existe, então vamos criá-lo
-                const createDeptQuery = 'INSERT INTO departments (name, user_id) VALUES ($1, $2)';
-                yield db_1.default.query(createDeptQuery, [department, userId]);
+                yield prisma_1.default.department.create({
+                    data: { name: department, user_id: userId },
+                });
             }
         }
-        const query = `
-      INSERT INTO transactions (title, amount, type, date, department)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *;
-    `;
-        console.log("Query SQL que será executada:", query); // Adicione esta linha
-        const values = [title, parsedAmount, type, date, department || null];
-        console.log("Valores que serão passados para a query:", values); // Adicione esta linha
-        const result = yield db_1.default.query(query, values);
-        res.status(201).json(result.rows[0]);
+        const newTransaction = yield prisma_1.default.transaction.create({
+            data: {
+                title,
+                amount: parsedAmount,
+                type,
+                date: new Date(date),
+                department: department || null,
+                user_id: userId,
+            },
+        });
+        res.status(201).json(newTransaction);
     }
     catch (error) {
         console.error("Erro ao criar transação", error);
@@ -63,34 +60,33 @@ const getTransactions = (req, res) => __awaiter(void 0, void 0, void 0, function
         res.status(401).json({ error: 'Usuário não autenticado.' });
         return;
     }
-    const userId = req.user.id;
+    const userId = Number(req.user.id);
     try {
-        // Pegando filtros opcionais
         const { month, year, type, department } = req.query;
-        let query = `SELECT * FROM transactions WHERE user_id = $1`;
-        let params = [userId];
-        let paramIndex = 2;
-        if (month) {
-            query += ` AND EXTRACT(MONTH FROM date) = ${paramIndex}`;
-            params.push(month);
-            paramIndex++;
-        }
-        if (year) {
-            query += ` AND EXTRACT(YEAR FROM date) = ${paramIndex}`;
-            params.push(year);
-            paramIndex++;
-        }
+        const where = { user_id: userId };
         if (type) {
-            query += ` AND type = ${paramIndex}`;
-            params.push(type);
-            paramIndex++;
+            where.type = type;
         }
         if (department) {
-            query += ` AND department = ${paramIndex}`;
-            params.push(department);
+            where.department = department;
         }
-        const { rows } = yield db_1.default.query(query, params);
-        res.json(rows);
+        if (month && year) {
+            where.date = {
+                gte: new Date(Number(year), Number(month) - 1, 1),
+                lt: new Date(Number(year), Number(month), 1),
+            };
+        }
+        else if (year) {
+            where.date = {
+                gte: new Date(Number(year), 0, 1),
+                lt: new Date(Number(year) + 1, 0, 1),
+            };
+        }
+        const transactions = yield prisma_1.default.transaction.findMany({
+            where,
+            orderBy: { date: 'desc' },
+        });
+        res.json(transactions);
     }
     catch (error) {
         console.error('Erro ao buscar transações:', error);
@@ -99,23 +95,34 @@ const getTransactions = (req, res) => __awaiter(void 0, void 0, void 0, function
 });
 exports.getTransactions = getTransactions;
 const getTransactionSummary = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d;
     if (!req.user) {
         res.status(401).json({ error: 'Usuário não autenticado.' });
         return;
     }
-    const userId = req.user.id;
+    const userId = Number(req.user.id);
     try {
-        const result = yield db_1.default.query(`
-      SELECT
-        SUM(CASE WHEN type = 'entrada' THEN amount ELSE 0 END) AS total_entradas,
-        SUM(CASE WHEN type = 'saida' THEN amount ELSE 0 END) AS total_saidas,
-        SUM(CASE WHEN type = 'entrada' THEN amount ELSE 0 END) -
-        SUM(CASE WHEN type = 'saida' THEN amount ELSE 0 END) AS saldo,
-        COUNT(*) FILTER (WHERE expected = true) AS previsoes
-      FROM transactions
-      WHERE user_id = $1
-      `, [userId]);
-        res.status(200).json(result.rows[0]);
+        const totals = yield prisma_1.default.transaction.groupBy({
+            by: ['type'],
+            where: { user_id: userId },
+            _sum: {
+                amount: true,
+            },
+        });
+        const previsoes = yield prisma_1.default.transaction.count({
+            where: {
+                user_id: userId,
+                expected: true,
+            },
+        });
+        const total_entradas = ((_b = (_a = totals.find(t => t.type === 'entrada')) === null || _a === void 0 ? void 0 : _a._sum.amount) === null || _b === void 0 ? void 0 : _b.toNumber()) || 0;
+        const total_saidas = ((_d = (_c = totals.find(t => t.type === 'saida')) === null || _c === void 0 ? void 0 : _c._sum.amount) === null || _d === void 0 ? void 0 : _d.toNumber()) || 0;
+        res.status(200).json({
+            total_entradas,
+            total_saidas,
+            saldo: total_entradas - total_saidas,
+            previsoes,
+        });
     }
     catch (error) {
         console.error('Erro ao gerar resumo:', error);
@@ -129,21 +136,32 @@ const updateTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
         return;
     }
     const { id } = req.params;
-    const userId = req.user.id;
-    const { title, amount, type, department, expected } = req.body;
+    const userId = Number(req.user.id);
+    const { title, amount, type, department, expected, date } = req.body;
     try {
-        const result = yield db_1.default.query(`UPDATE transactions
-       SET title = $1, amount = $2, type = $3, department = $4, expected = $5
-       WHERE id = $6 AND user_id = $7
-       RETURNING *`, [title, amount, type, department, expected, id, userId]);
-        if (result.rowCount === 0) {
-            return res.status(404).json({ error: 'Transação não encontrada' });
-        }
-        res.status(200).json(result.rows[0]);
+        const updatedTransaction = yield prisma_1.default.transaction.update({
+            where: { id: Number(id), user_id: userId },
+            data: {
+                title,
+                amount,
+                type,
+                department,
+                expected,
+                date: new Date(date),
+            },
+        });
+        res.status(200).json(updatedTransaction);
     }
     catch (error) {
-        console.error('Erro ao atualizar transação:', error);
-        res.status(500).json({ error: 'Erro interno ao atualizar' });
+        console.error('Erro detalhado ao atualizar transação:', error);
+        if (error.code === 'P2025') {
+            return res.status(404).json({ error: 'Transação não encontrada ou não pertence ao usuário.' });
+        }
+        res.status(500).json({
+            error: 'Erro interno ao atualizar a transação.',
+            details: error.message,
+            code: error.code
+        });
     }
 });
 exports.updateTransaction = updateTransaction;
@@ -153,17 +171,15 @@ const deleteTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
         return;
     }
     const { id } = req.params;
-    const userId = req.user.id;
+    const userId = Number(req.user.id);
     try {
-        const result = yield db_1.default.query(`DELETE FROM transactions WHERE id = $1 AND user_id = $2`, [id, userId]);
-        if (result.rowCount === 0) {
-            return res.status(404).json({ error: 'Transação não encontrada' });
-        }
+        yield prisma_1.default.transaction.delete({
+            where: { id: Number(id), user_id: userId },
+        });
         res.status(200).json({ message: 'Transação excluída com sucesso' });
     }
     catch (error) {
-        console.error('Erro ao excluir transação:', error);
-        res.status(500).json({ error: 'Erro interno ao excluir' });
+        res.status(404).json({ error: 'Transação não encontrada' });
     }
 });
 exports.deleteTransaction = deleteTransaction;
@@ -171,15 +187,18 @@ const getTransactionsByDepartment = (req, res) => __awaiter(void 0, void 0, void
     if (!req.user) {
         res.status(401).json({ error: 'Usuário não autenticado.' });
         return;
-        return;
     }
     const { department } = req.params;
-    const userId = req.user.id;
+    const userId = Number(req.user.id);
     try {
-        const result = yield db_1.default.query(`SELECT * FROM transactions
-       WHERE user_id = $1 AND department ILIKE $2
-       ORDER BY created_at DESC`, [userId, department]);
-        res.status(200).json(result.rows);
+        const transactions = yield prisma_1.default.transaction.findMany({
+            where: {
+                user_id: userId,
+                department: { equals: department, mode: 'insensitive' },
+            },
+            orderBy: { created_at: 'desc' },
+        });
+        res.status(200).json(transactions);
     }
     catch (error) {
         console.error('Erro ao buscar transações por departamento:', error);
@@ -193,26 +212,25 @@ const getMonthlySummary = (req, res) => __awaiter(void 0, void 0, void 0, functi
         return;
     }
     try {
-        const userId = req.user.id;
-        const query = `
-      SELECT 
-        EXTRACT(MONTH FROM date) AS month,
-        type,
-        SUM(amount) AS total
-      FROM transactions
-      WHERE user_id = $1 AND EXTRACT(YEAR FROM date) = EXTRACT(YEAR FROM CURRENT_DATE)
-      GROUP BY month, type
-      ORDER BY month
-    `;
-        const { rows } = yield db_1.default.query(query, [userId]);
-        // Organizar em formato mais fácil para o front
+        const userId = Number(req.user.id);
+        const query = client_1.Prisma.sql `
+        SELECT 
+          EXTRACT(MONTH FROM date) AS month,
+          type,
+          SUM(amount) AS total
+        FROM "Transaction"
+        WHERE user_id = ${userId} AND EXTRACT(YEAR FROM date) = EXTRACT(YEAR FROM CURRENT_DATE)
+        GROUP BY month, type
+        ORDER BY month
+      `;
+        const rows = yield prisma_1.default.$queryRaw(query);
         const result = {};
         for (let i = 1; i <= 12; i++) {
             result[i] = { entrada: 0, saida: 0 };
         }
         rows.forEach((row) => {
             const m = row.month;
-            result[m][row.type] = parseFloat(row.total);
+            result[m][row.type] = Number(row.total);
         });
         res.json(result);
     }
@@ -228,23 +246,23 @@ const getByDepartment = (req, res) => __awaiter(void 0, void 0, void 0, function
         return;
     }
     try {
-        const userId = req.user.id;
+        const userId = Number(req.user.id);
         const { month, year } = req.query;
         if (!month || !year) {
             res.status(400).json({ error: 'Informe mês e ano' });
             return;
         }
-        const query = `
-      SELECT department, SUM(amount) AS total
-      FROM transactions
-      WHERE user_id = $1
-        AND type = 'saida'
-        AND EXTRACT(MONTH FROM date) = $2
-        AND EXTRACT(YEAR FROM date) = $3
-      GROUP BY department
-      ORDER BY total DESC
-    `;
-        const { rows } = yield db_1.default.query(query, [userId, month, year]);
+        const query = client_1.Prisma.sql `
+        SELECT department, SUM(amount) AS total
+        FROM "Transaction"
+        WHERE user_id = ${userId}
+          AND type = 'saida'
+          AND EXTRACT(MONTH FROM date) = ${Number(month)}
+          AND EXTRACT(YEAR FROM date) = ${Number(year)}
+        GROUP BY department
+        ORDER BY total DESC
+      `;
+        const rows = yield prisma_1.default.$queryRaw(query);
         res.json(rows);
     }
     catch (error) {
@@ -259,25 +277,25 @@ const getMonthlyResume = (req, res) => __awaiter(void 0, void 0, void 0, functio
         return;
     }
     try {
-        const userId = req.user.id;
+        const userId = Number(req.user.id);
         const { month, year } = req.query;
         const now = new Date();
         const currentMonth = now.getMonth() + 1;
         const currentYear = now.getFullYear();
         const m = month || currentMonth;
         const y = year || currentYear;
-        const query = `
-      SELECT type, SUM(amount) AS total
-      FROM transactions
-      WHERE user_id = $1
-        AND EXTRACT(MONTH FROM date) = $2
-        AND EXTRACT(YEAR FROM date) = $3
-      GROUP BY type
-    `;
-        const { rows } = yield db_1.default.query(query, [userId, m, y]);
+        const query = client_1.Prisma.sql `
+        SELECT type, SUM(amount) AS total
+        FROM "Transaction"
+        WHERE user_id = ${userId}
+          AND EXTRACT(MONTH FROM date) = ${Number(m)}
+          AND EXTRACT(YEAR FROM date) = ${Number(y)}
+        GROUP BY type
+      `;
+        const rows = yield prisma_1.default.$queryRaw(query);
         const result = { entrada: 0, saida: 0 };
         rows.forEach((row) => {
-            result[row.type] = parseFloat(row.total);
+            result[row.type] = Number(row.total);
         });
         res.json(result);
     }
@@ -288,13 +306,16 @@ const getMonthlyResume = (req, res) => __awaiter(void 0, void 0, void 0, functio
 });
 exports.getMonthlyResume = getMonthlyResume;
 const isValidDepartment = (departmentName, userId) => __awaiter(void 0, void 0, void 0, function* () {
-    const query = `
-    SELECT 1 FROM departments
-    WHERE name = $1 AND (user_id = $2 OR is_default = true)
-    LIMIT 1
-  `;
-    const { rows } = yield db_1.default.query(query, [departmentName, userId]);
-    return rows.length > 0;
+    const department = yield prisma_1.default.department.findFirst({
+        where: {
+            name: departmentName,
+            OR: [
+                { user_id: userId },
+                { is_default: true },
+            ],
+        },
+    });
+    return !!department;
 });
 exports.isValidDepartment = isValidDepartment;
 const getSummaryByDepartment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -302,16 +323,16 @@ const getSummaryByDepartment = (req, res) => __awaiter(void 0, void 0, void 0, f
         res.status(401).json({ error: 'Usuário não autenticado.' });
         return;
     }
-    const userId = req.user.id;
+    const userId = Number(req.user.id);
     try {
-        const query = `
-      SELECT department, type, SUM(amount) AS total
-      FROM transactions
-      WHERE user_id = $1
-      GROUP BY department, type
-      ORDER BY department
-    `;
-        const { rows } = yield db_1.default.query(query, [userId]);
+        const query = client_1.Prisma.sql `
+        SELECT department, type, SUM(amount) AS total
+        FROM "Transaction"
+        WHERE user_id = ${userId}
+        GROUP BY department, type
+        ORDER BY department
+      `;
+        const rows = yield prisma_1.default.$queryRaw(query);
         res.json(rows);
     }
     catch (error) {
@@ -325,21 +346,21 @@ const getFinancialSummary = (req, res) => __awaiter(void 0, void 0, void 0, func
         res.status(401).json({ error: 'Usuário não autenticado.' });
         return;
     }
-    const userId = req.user.id;
+    const userId = Number(req.user.id);
     try {
-        const query = `
-      SELECT
-        SUM(CASE WHEN type = 'entrada' THEN amount ELSE 0 END) AS total_entrada,
-        SUM(CASE WHEN type = 'saida' THEN amount ELSE 0 END) AS total_saida
-      FROM transactions
-      WHERE user_id = $1
-    `;
-        const { rows } = yield db_1.default.query(query, [userId]);
+        const query = client_1.Prisma.sql `
+        SELECT
+          SUM(CASE WHEN type = 'entrada' THEN amount ELSE 0 END) AS total_entrada,
+          SUM(CASE WHEN type = 'saida' THEN amount ELSE 0 END) AS total_saida
+        FROM "Transaction"
+        WHERE user_id = ${userId}
+      `;
+        const rows = yield prisma_1.default.$queryRaw(query);
         const { total_entrada, total_saida } = rows[0];
-        const saldo = (parseFloat(total_entrada || 0) - parseFloat(total_saida || 0)).toFixed(2);
+        const saldo = (Number(total_entrada || 0) - Number(total_saida || 0)).toFixed(2);
         res.json({
-            total_entrada: parseFloat(total_entrada || 0),
-            total_saida: parseFloat(total_saida || 0),
+            total_entrada: Number(total_entrada || 0),
+            total_saida: Number(total_saida || 0),
             saldo: parseFloat(saldo)
         });
     }

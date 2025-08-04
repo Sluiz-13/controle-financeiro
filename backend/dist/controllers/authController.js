@@ -13,33 +13,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.login = exports.register = void 0;
-const db_1 = __importDefault(require("../config/db"));
+const prisma_1 = __importDefault(require("../config/prisma"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, email, password } = req.body;
     try {
-        // Verifica se o email já existe
-        const existingUser = yield db_1.default.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (existingUser.rows.length > 0) {
+        const existingUser = yield prisma_1.default.user.findUnique({ where: { email } });
+        if (existingUser) {
             res.status(400).json({ error: 'Email já registrado' });
             return;
         }
-        // Criptografa a senha
         const hashedPassword = yield bcrypt_1.default.hash(password, 10);
-        // Insere no banco de dados
-        const newUser = yield db_1.default.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *', [name, email, hashedPassword]);
+        const newUser = yield prisma_1.default.user.create({
+            data: {
+                name,
+                email,
+                password: hashedPassword,
+            },
+        });
         const jwtSecret = process.env.JWT_SECRET;
         if (!jwtSecret) {
             throw new Error('JWT_SECRET não está definido');
         }
-        const token = jsonwebtoken_1.default.sign({ id: newUser.rows[0].id }, jwtSecret, { expiresIn: '1d' });
+        const token = jsonwebtoken_1.default.sign({ id: newUser.id }, jwtSecret, { expiresIn: '1d' });
         res.status(201).json({
             message: 'Usuário registrado com sucesso',
             user: {
-                id: newUser.rows[0].id,
-                name: newUser.rows[0].name,
-                email: newUser.rows[0].email,
+                id: newUser.id,
+                name: newUser.name,
+                email: newUser.email,
             },
             token,
         });
@@ -53,24 +56,16 @@ exports.register = register;
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     try {
-        // Verifica se o usuário existe
-        const userResult = yield db_1.default.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (userResult.rows.length === 0) {
+        const user = yield prisma_1.default.user.findUnique({ where: { email } });
+        if (!user) {
             res.status(404).json({ error: 'Usuário não encontrado' });
             return;
         }
-        const user = userResult.rows[0];
-        console.log('Attempting login for email:', email);
-        console.log('Password received:', password);
-        console.log('Hashed password from DB:', user.password);
-        // Verifica a senha
         const passwordMatch = yield bcrypt_1.default.compare(password, user.password);
-        console.log('Password match result:', passwordMatch);
         if (!passwordMatch) {
             res.status(401).json({ error: 'Senha incorreta' });
             return;
         }
-        // Gera o token JWT
         const jwtSecret = process.env.JWT_SECRET;
         if (!jwtSecret) {
             throw new Error('JWT_SECRET não está definido');

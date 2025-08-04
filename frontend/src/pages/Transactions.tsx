@@ -120,7 +120,7 @@ export default function Transactions() {
                     <span className={`badge ${tx.type}`}>{tx.type}</span>
                   </td>
                   <td data-label="Data" className="py-3 px-4">
-                    {new Date(tx.date).toLocaleDateString("pt-BR")}
+                    {new Date(tx.date).toLocaleDateString("pt-BR", { timeZone: "UTC" })}
                   </td>
                   <td data-label="Departamento" className="py-3 px-4">
                     <span className={`py-3 px-4" ${tx.department}`}>{tx.department}</span>

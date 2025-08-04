@@ -1,4 +1,4 @@
-import pool from '../config/db';
+import prisma from '../config/prisma';
 
 import { Request, Response } from 'express';
 
@@ -8,16 +8,23 @@ const getDepartments = async (req: Request, res: Response): Promise<void> => {
     res.status(401).json({ error: 'Usuário não autenticado.' });
     return;
   }
-  const userId = req.user.id
+  const userId = Number(req.user.id);
   try {
-    const query = `SELECT * FROM departments WHERE user_id = $1 AND is_active = TRUE ORDER BY name`
-    const { rows } = await pool.query(query, [userId])
-    res.json(rows)
+    const departments = await prisma.department.findMany({
+      where: {
+        user_id: userId,
+        is_active: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+    res.json(departments);
   } catch (error) {
-    console.error('Erro ao buscar departamentos:', error)
-    res.status(500).json({ error: 'Erro ao buscar departamentos' })
+    console.error('Erro ao buscar departamentos:', error);
+    res.status(500).json({ error: 'Erro ao buscar departamentos' });
   }
-}
+};
 
 // Criar novo departamento
 const createDepartment = async (req: Request, res: Response): Promise<void> => {
@@ -25,16 +32,20 @@ const createDepartment = async (req: Request, res: Response): Promise<void> => {
     res.status(401).json({ error: 'Usuário não autenticado.' });
     return;
   }
-  const userId = req.user.id
-  const { name } = req.body
+  const userId = Number(req.user.id);
+  const { name } = req.body;
   try {
-    const query = `INSERT INTO departments (name, user_id) VALUES ($1, $2) RETURNING *`
-    const { rows } = await pool.query(query, [name, userId])
-    res.status(201).json(rows[0])
+    const newDepartment = await prisma.department.create({
+      data: {
+        name,
+        user_id: userId,
+      },
+    });
+    res.status(201).json(newDepartment);
   } catch (error) {
-    console.error('Erro ao criar departamento:', error)
-    res.status(500).json({ error: 'Erro ao criar departamento' })
+    console.error('Erro ao criar departamento:', error);
+    res.status(500).json({ error: 'Erro ao criar departamento' });
   }
-}
+};
 
 export { getDepartments, createDepartment };

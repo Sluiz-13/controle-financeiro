@@ -13,18 +13,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createDepartment = exports.getDepartments = void 0;
-const db_1 = __importDefault(require("../config/db"));
+const prisma_1 = __importDefault(require("../config/prisma"));
 // Listar departamentos do usuário
 const getDepartments = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user) {
         res.status(401).json({ error: 'Usuário não autenticado.' });
         return;
     }
-    const userId = req.user.id;
+    const userId = Number(req.user.id);
     try {
-        const query = `SELECT * FROM departments WHERE user_id = $1 AND is_active = TRUE ORDER BY name`;
-        const { rows } = yield db_1.default.query(query, [userId]);
-        res.json(rows);
+        const departments = yield prisma_1.default.department.findMany({
+            where: {
+                user_id: userId,
+                is_active: true,
+            },
+            orderBy: {
+                name: 'asc',
+            },
+        });
+        res.json(departments);
     }
     catch (error) {
         console.error('Erro ao buscar departamentos:', error);
@@ -38,12 +45,16 @@ const createDepartment = (req, res) => __awaiter(void 0, void 0, void 0, functio
         res.status(401).json({ error: 'Usuário não autenticado.' });
         return;
     }
-    const userId = req.user.id;
+    const userId = Number(req.user.id);
     const { name } = req.body;
     try {
-        const query = `INSERT INTO departments (name, user_id) VALUES ($1, $2) RETURNING *`;
-        const { rows } = yield db_1.default.query(query, [name, userId]);
-        res.status(201).json(rows[0]);
+        const newDepartment = yield prisma_1.default.department.create({
+            data: {
+                name,
+                user_id: userId,
+            },
+        });
+        res.status(201).json(newDepartment);
     }
     catch (error) {
         console.error('Erro ao criar departamento:', error);
